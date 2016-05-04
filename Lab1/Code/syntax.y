@@ -19,7 +19,7 @@ int err = 0;
 %token <node> LP RP LB RB LC RC
 %token <node> STRUCT RETURN IF ELSE WHILE
 %token <node> TYPE
-%token <node> INT 
+%token <node> INT
 %token <node> FLOAT
 %token <node> ID
 
@@ -38,7 +38,7 @@ int err = 0;
 
 %type <node> Program
 %type <node> ExtDefList ExtDef ExtDecList
-%type <node> Specifier StructSpecifier OptTag Tag 
+%type <node> Specifier StructSpecifier OptTag Tag
 %type <node> VarDec FunDec VarList ParamDec
 %type <node> CompSt StmtList Stmt DefList Def DecList Dec
 %type <node> Exp Args
@@ -50,13 +50,14 @@ Program : ExtDefList {$$ = initNode("Program","",@$.first_line);addChildList($$,
 		;
 ExtDefList : ExtDef ExtDefList {$$ = initNode("ExtDefList","",@$.first_line);addChildList($$,$1,$2,NULL);}
 		   |/*empty*/          {$$ = NULL;}
-		   ; 
+		   ;
 ExtDef : Specifier ExtDecList SEMI {$$ = initNode("ExtDef","",@$.first_line);addChildList($$,$1,$2,$3,NULL);}
 	   | Specifier SEMI            {$$ = initNode("ExtDef","",@$.first_line);addChildList($$,$1,$2,NULL);}
 	   | Specifier FunDec CompSt   {$$ = initNode("ExtDef","",@$.first_line);addChildList($$,$1,$2,$3,NULL);}
+	   | error SEMI                {err = 1;}
 	   ;
 ExtDecList : VarDec                  {$$ = initNode("ExtDecList","",@$.first_line);addChildList($$,$1,NULL);}
-		   |VarDec COMMA ExtDecList  {$$ = initNode("ExtDecList","",@$.first_line);addChildList($$,$1,$2,$3,NULL);}
+		   | VarDec COMMA ExtDecList  {$$ = initNode("ExtDecList","",@$.first_line);addChildList($$,$1,$2,$3,NULL);}
            ;
 
 /*Specifier*/
@@ -66,7 +67,7 @@ Specifier : TYPE                 {$$ = initNode("Specifier","",@$.first_line);ad
 StructSpecifier : STRUCT OptTag LC DefList RC {$$ = initNode("StructSpecifier","",@$.first_line);addChildList($$,$1,$2,$3,$4,$5,NULL);}
 				|STRUCT Tag {$$ = initNode("StructSpecifier","",@$.first_line);addChildList($$,$1,$2,NULL);}
 				;
-OptTag : ID         {$$ = initNode("OptTag","",@$.first_line);addChildList($$,$1,NULL);} 
+OptTag : ID         {$$ = initNode("OptTag","",@$.first_line);addChildList($$,$1,NULL);}
 	   |/*empty*/   {$$ = NULL;}
 	   ;
 Tag : ID            {$$ = initNode("Tag","",@$.first_line);addChildList($$,$1,NULL);}
@@ -76,8 +77,9 @@ Tag : ID            {$$ = initNode("Tag","",@$.first_line);addChildList($$,$1,NU
 VarDec : ID                   {$$ = initNode("VarDec","",@$.first_line);addChildList($$,$1,NULL);}
 	   |VarDec LB INT RB      {$$ = initNode("VarDec","",@$.first_line);addChildList($$,$1,$2,$3,$4,NULL);}
 	   ;
-FunDec : ID LP VarList RP     {$$ = initNode("FunDec","",@$.first_line);addChildList($$,$1,$2,$3,$4,NULL);}
+FunDec : ID LP VarList RP      {$$ = initNode("FunDec","",@$.first_line);addChildList($$,$1,$2,$3,$4,NULL);}
 	   | ID LP RP              {$$ = initNode("FunDec","",@$.first_line);addChildList($$,$1,$2,$3,NULL);}
+	   | error RP              {err = 1;}
 	   ;
 VarList : ParamDec COMMA VarList  {$$ = initNode("VarList","",@$.first_line);addChildList($$,$1,$2,$3,NULL);}
 		|ParamDec                 {$$ = initNode("VarList","",@$.first_line);addChildList($$,$1,NULL);}
@@ -87,6 +89,7 @@ ParamDec : Specifier VarDec       {$$ = initNode("ParamDec","",@$.first_line);ad
 
 /*Statements*/
 CompSt : LC DefList StmtList RC   {$$ = initNode("CompSt","",@$.first_line);addChildList($$,$1,$2,$3,$4,NULL);}
+	   | error RC                 {err = 1;}
 	   ;
 StmtList : Stmt StmtList          {$$ = initNode("StmtList","",@$.first_line);addChildList($$,$1,$2,NULL);}
 		 |/*empty*/               {$$ = NULL;}
@@ -97,6 +100,8 @@ Stmt : Exp SEMI                                 {$$ = initNode("Stmt","",@$.firs
 	 |IF LP Exp RP Stmt %prec LOWER_THAN_ELSE   {$$ = initNode("Stmt","",@$.first_line);addChildList($$,$1,$2,$3,$4,$5,NULL);}
 	 |IF LP Exp RP Stmt ELSE Stmt               {$$ = initNode("Stmt","",@$.first_line);addChildList($$,$1,$2,$3,$4,$5,$6,$7,NULL);}
 	 |WHILE LP Exp RP Stmt                      {$$ = initNode("Stmt","",@$.first_line);addChildList($$,$1,$2,$3,$4,$5,NULL);}
+	 |error RP                                  {err = 1;}
+	 |error SEMI                                {err = 1;}
  ;
 
 /*Local Defnitions*/
@@ -104,7 +109,7 @@ DefList : Def DefList           {$$ = initNode("DefList","",@$.first_line);addCh
 		|/*empty*/              {$$ = NULL;}
 		;
 Def : Specifier DecList SEMI    {$$ = initNode("Def","",@$.first_line);addChildList($$,$1,$2,$3,NULL);}
-	| Specifier DecList error   {err = 1;}   
+	| Specifier DecList error   {err = 1;}
 	 ;
 DecList : Dec                   {$$ = initNode("DecList","",@$.first_line);addChildList($$,$1,NULL);}
 		|Dec COMMA DecList      {$$ = initNode("DecList","",@$.first_line);addChildList($$,$1,$2,$3,NULL);}
@@ -136,21 +141,7 @@ Exp : Exp ASSIGNOP Exp			{$$ = initNode("Exp","",@$.first_line);addChildList($$,
 Args : Exp COMMA Args           {$$ = initNode("Args","",@$.first_line);addChildList($$,$1,$2,$3,NULL);}
 	 |Exp                       {$$ = initNode("Args","",@$.first_line);addChildList($$,$1,NULL);}
 	 ;
-/*Error*/
-Stmt : error SEMI               {err = 1;}
-	 ;
-CompSt : error RC               {err = 1;}
-	   ;
-Exp : error RP                  {err = 1;}
-	| error Exp                 {err = 1;}
-	;
-VarDec : error SEMI             {err = 1;}
-	   | error RB               {err = 1;}
-	   ;
-ExtDef : error SEMI             {err = 1;}
-	   ;
-Def : error SEMI				{err = 1;}
-	;
+
 %%
 
 void yyerror(char const* msg){
