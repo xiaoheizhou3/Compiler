@@ -145,6 +145,6 @@ Args : Exp COMMA Args            {$$ = initNode("Args","",@$.first_line);addChil
 	 ;
 %%
 
-void yyerror(char const* msg){
+yyerror(char const * msg){
 	fprintf(stderr,"Error type B at Line %d ,wrong input:  %s ?\n",yylineno,yylval.node->value);
 }

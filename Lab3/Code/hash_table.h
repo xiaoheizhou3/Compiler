@@ -2,6 +2,7 @@
 #define _HASHTABLE_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define SYMBOL_TABLE_SIZE 0x3fff //size of symboltable

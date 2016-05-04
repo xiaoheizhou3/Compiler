@@ -22,9 +22,9 @@ int write(int output){
 }
 */
 void initTables(){
-/*	Fundef* read_func = malloc(struct Fundef_);
+	Fundef* read_func = malloc(sizeof(struct Fundef_));
 	strcpy(read_func->name,"read");
-	Type* read_ret = malloc(struct Type_);
+	Type* read_ret = malloc(sizeof(struct Type_));
 	read_ret->kind = BASIC;
 	read_ret->u.basic = int_type;
 	read_func->ret = read_ret;
@@ -32,33 +32,33 @@ void initTables(){
 	read_func->row = 0;
 	read_func->samehash = NULL;
 	read_func->hasDefined = true;
-	Fundef* write_func = malloc(struct Fundef_);
+	Fundef* write_func = malloc(sizeof(struct Fundef_));
 	strcpy(write_func->name,"write");
-	Type* write_ret = malloc(struct Type_);
+	Type* write_ret = malloc(sizeof(struct Type_));
 	write_ret->kind = BASIC;
 	write_ret->u.basic = int_type;
 	write_func->ret = write_ret;
-	FieldList* args_list = malloc(struct FieldList_);
+	FieldList* args_list = malloc(sizeof(struct FieldList_));
 	args_list->next = NULL;
 	args_list->samehash = NULL;
 	strcpy(args_list->name,"output");
-	Type* args_list_type = malloc(struct Type_);
+	Type* args_list_type = malloc(sizeof(struct Type_));
 	args_list_type->kind = BASIC;
 	args_list_type->u.basic = int_type;
 	args_list->type = args_list_type;
 	write_func->args_list = args_list;
 	write_func->row = 0;
 	write_func->samehash = NULL;
-	write_func->hasDefined = true;*/
+	write_func->hasDefined = true;
 	int i = 0;
 	for(;i < SYMBOL_TABLE_SIZE;i++){
 		VarTable[i] = NULL;
 		FuncTable[i] = NULL;
 	}
-	/*
+
 	insertFunc(read_func,1);
 	insertFunc(write_func,1);
-	*/
+
 }
 
 FieldList* getVarByName(char* name){
