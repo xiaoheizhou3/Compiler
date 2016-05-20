@@ -2,8 +2,14 @@
 #include "lex.yy.c"
 #include "node.h"
 #include "semantic.h"
+#define YYERROR_VERBOSE
 struct Node *root;
 int err = 0;
+
+void yyerror(const char* msg){
+	fprintf(stderr,"Error type B at Line %d ,wrong input:  %s ?\n",yylineno,yylval.node->value);
+}
+
 %}
 
 %union{
@@ -145,6 +151,23 @@ Args : Exp COMMA Args            {$$ = initNode("Args","",@$.first_line);addChil
 	 ;
 %%
 
-yyerror(char const * msg){
-	fprintf(stderr,"Error type B at Line %d ,wrong input:  %s ?\n",yylineno,yylval.node->value);
+
+int main(int argc,char**argv){
+	if(argc <= 1){
+		return 1;
+	}
+	FILE* f = fopen(argv[1],"r");
+	if(!f){
+		perror(argv[1]);
+		return 1;
+	}
+	yylineno = 1;
+	yyrestart(f);
+	yyparse();
+	// printTree(root,0);
+	if(!err){
+		// printTree(root,0);
+		Program(root);
+	}
+	return 0;
 }
