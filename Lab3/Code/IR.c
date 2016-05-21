@@ -1,5 +1,7 @@
 #include "IR.h"
 
+InterCodes *code_head = NULL,*code_tail = NULL;
+
 void insertCode(InterCodes* code){
     if(code_head == NULL){
         code_head = code;

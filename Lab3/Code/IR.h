@@ -48,6 +48,7 @@ struct InterCode_ {
         struct{			//return ,label,goto,read,write,arg, function
 			Operand* op;		//param
 		} one;
+
 		struct{
 			Operand *left,*right;	//call
 		} assign;	//assign	rightat
@@ -75,8 +76,7 @@ struct InterCodes_ {
     InterCodes* next;
 };
 
-
-InterCodes *code_head = NULL,*code_tail = NULL;
+extern InterCodes *code_head,*code_tail;
 
 void insertCode(InterCodes* code);
 void deleteCode(InterCodes* code);

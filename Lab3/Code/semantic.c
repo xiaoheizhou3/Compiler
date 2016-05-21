@@ -1,4 +1,5 @@
 #include "semantic.h"
+#include "IR.h"
 
 void checkFunc(){
 	int i;
@@ -69,6 +70,26 @@ void ExtDef(struct Node* root){
 				else if(i == 2){
 					printf("Error type 19 at line %d: Inconsistent declaration of function '%s'\n",temp->row,temp->name);
 				}
+				else{
+					InterCodes* tempNodeOfFunction = malloc(sizeof(struct InterCodes_));
+					tempNodeOfFunction->code = malloc(sizeof(struct InterCode_));
+					tempNodeOfFunction->code->kind = FUNCTION_K;
+					tempNodeOfFunction->code->u.one.op = malloc(sizeof(struct Operand_));
+					tempNodeOfFunction->code->u.one.op->kind = FUNCTION;
+					tempNodeOfFunction->code->u.one.op->u.value = temp->name;
+					insertCode(tempNodeOfFunction);
+					FieldList* args_list = malloc(sizeof(struct FieldList_));
+					args_list = temp->args_list;
+					while(args_list != NULL){
+						InterCodes* tempNodeOfArgs = malloc(sizeof(struct InterCodes_));
+						tempNodeOfArgs->code = malloc(sizeof(struct InterCode_));
+						tempNodeOfArgs->code->kind = PARAM_K;
+						tempNodeOfArgs->code->u.one.op = malloc(sizeof(struct Operand_));
+						tempNodeOfArgs->code->u.one.op->kind = VARIABLE;
+						tempNodeOfArgs->code->u.one.op->u.value = args_list->name;
+						insertCode(tempNodeOfArgs);
+					}
+				}
 			}
 			CompSt(child,type);
 		}
@@ -76,21 +97,15 @@ void ExtDef(struct Node* root){
 }
 
 Type* Specifier(struct Node* root){
-	// printf("Enter Specifier\n");
 	Type* ret;
 	struct Node* child = root->children;
 	if(strcmp(child->name,"TYPE") == 0){
-		// printf("get TYPE\n");
-		// printf("int or flo:%s\n",child->name);
 		ret = malloc(sizeof(struct Type_));
 		ret->kind = BASIC;
 		if(strcmp(child->value,"int") == 0){
-			// ret->kind = BASIC;
 			ret->u.basic = int_type;
 		}
 		else if(strcmp(child->value,"float") == 0){
-			// ret->kind = BASIC;
-			// printf("fuzhi float\n");
 			ret->u.basic = float_type;
 		}
 	}
