@@ -192,3 +192,34 @@ int insertFunc(Fundef* func,int hasDefined){
 		}
 	}
 }
+
+int typeSize(Type* type){
+	if(type->kind==BASIC){
+		if(type->u.basic==int_type)
+			return 4;
+		else return 8;
+	}
+	else if(type->kind==STRUCTURE)	//struct
+	{
+		int size=0;
+		FieldList* f=type->u.structure->next;
+		while(f!=NULL)
+		{
+			size+=typeSize(f->type);
+			f=f->next;
+		}
+		return size;
+	}
+	else if(type->kind==ARRAY)		//array
+	{
+		//高维数组
+		if(type->u.array.elem->kind==ARRAY)
+		{
+			printf("Can not translate the code: Contain multidimensional array and function parameters of array type!\n");
+			exit(-1);
+		}
+		return	type->u.array.size*typeSize(type->u.array.elem);
+	}
+	printf("type size error!\n");
+	return 0;
+}

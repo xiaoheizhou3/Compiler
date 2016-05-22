@@ -52,6 +52,7 @@ int insertVar(FieldList* var);
 bool paramEqual(FieldList* f1,FieldList* f2);
 bool typeEqual(Type* f1,Type* f2);
 int insertFunc(Fundef* func,int hasDefined);
+int typeSize(Type* type);
 /*
 int read();
 int write(int output);

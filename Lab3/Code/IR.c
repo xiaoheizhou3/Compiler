@@ -1,6 +1,7 @@
 #include "IR.h"
 
 InterCodes *code_head = NULL,*code_tail = NULL;
+int varCount=1,labCount=1;
 
 void insertCode(InterCodes* code){
     if(code_head == NULL){

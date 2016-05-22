@@ -77,6 +77,7 @@ struct InterCodes_ {
 };
 
 extern InterCodes *code_head,*code_tail;
+extern int varCount,labCount;
 
 void insertCode(InterCodes* code);
 void deleteCode(InterCodes* code);

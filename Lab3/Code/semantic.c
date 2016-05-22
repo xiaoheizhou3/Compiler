@@ -168,7 +168,35 @@ Type* StructSpecifier(struct Node* root){
 void ExtDecList(struct Node* root,Type* type){
 	// printf("Enter ExtDecList\n");
 	struct Node* child = root->children;
-	VarDec(child,type,1);
+	FieldList* f=VarDec(child,type,1);	//1:global variable
+	if(f != NULL){
+		if(f->type->kind==ARRAY)			//array
+		{
+			Operand* op = malloc(sizeof(struct Operand_));
+			op->kind = TEMPVAR;
+			op->u.var_no = varCount++;
+
+			InterCode* deccode = malloc(sizeof(struct InterCode_));
+			deccode->kind = DEC_K;
+			deccode->u.dec.op = op;
+			deccode->u.dec.size = typeSize(f->type);
+			InterCodes* tempNodeOfdeccode = malloc(sizeof(struct InterCodes_));
+			tempNodeOfdeccode->code = deccode;
+			insertCode(tempNodeOfdeccode);
+
+			Operand* v = malloc(sizeof(struct Operand_));
+			v->kind = VARIABLE;
+			v->u.value = f->name;
+
+			InterCode* addrcode = malloc(sizeof(struct InterCode_));
+			addrcode->kind = RIGHTAT_K;
+			addrcode->u.assign.left = v;
+			addrcode->u.assign.right = op;
+			InterCodes* tempNodeOfAddr = malloc(sizeof(struct InterCodes_));
+			tempNodeOfAddr->code = addrcode;
+			insertCode(tempNodeOfAddr);
+		}
+	}
 	child = child->next;
 	while(child != NULL){
 		child->next;
