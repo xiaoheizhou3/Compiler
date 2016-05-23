@@ -3,6 +3,7 @@
 
 #include "node.h"
 #include "hash_table.h"
+#include "IR.h"
 
 void checkFunc();
 
@@ -28,7 +29,12 @@ FieldList* Def(struct Node* root,int from);
 FieldList* DecList(struct Node* root,Type* type,int from);
 FieldList* Dec(struct Node* root,Type* type,int from);
 
-Type* Exp(struct Node* root);
-bool Args(struct Node* root,FieldList* f);
+Type* Exp(struct Node *n,Operand* place);
+bool Args(struct Node* n,FieldList* f,Operand* arg_list);
+
+Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false);
+void printparam(FieldList* f);
+void printargs(struct Node *n);
+void printtype(Type* t);
 
 #endif

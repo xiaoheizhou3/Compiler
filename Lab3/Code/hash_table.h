@@ -16,7 +16,7 @@ typedef struct FieldList_ FieldList;
 typedef struct Fundef_ Fundef;
 
 struct Type_{
-	enum {BASIC,ARRAY,STRUCTURE} kind;
+	enum {BASIC,ARRAY,STRUCTURE,CONSTANT} kind;
 	union {
 		int basic;
 		struct {Type* elem;int size;} array;
@@ -53,6 +53,7 @@ bool paramEqual(FieldList* f1,FieldList* f2);
 bool typeEqual(Type* f1,Type* f2);
 int insertFunc(Fundef* func,int hasDefined);
 int typeSize(Type* type);
+
 /*
 int read();
 int write(int output);
