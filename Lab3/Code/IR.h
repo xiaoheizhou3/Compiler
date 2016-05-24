@@ -31,6 +31,7 @@
 
 typedef struct Operand_ Operand;
 typedef struct InterCode_ InterCode;
+typedef struct Label_No_ Label_No;
 typedef struct InterCodes_ InterCodes;
 struct Operand_ {
     enum {tempvar,variable,cons,vaddress,label,function,taddress} kind;
@@ -70,6 +71,11 @@ struct InterCode_ {
     }u;
 };
 
+struct Label_No_{
+	int no;
+	Label_No* next;
+};
+
 struct InterCodes_ {
     InterCode* code;
     InterCodes* prev;
@@ -83,6 +89,13 @@ void insertCode(InterCodes* code);
 void deleteCode(InterCodes* code);
 void printCode(char* filename);
 void printOp(Operand* op,FILE* fp);
+
+void optIF();
+void rmLabel();
+int opEqual(Operand* op1,Operand* op2);
+void rddCode();
+void lookCon();
+void sameRight();
 
 
 #endif

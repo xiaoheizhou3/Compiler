@@ -16,14 +16,15 @@ void checkFunc(){
 }
 
 void Program(struct Node* root){
-	// printf("Enter Program\n");
+	printf("enter program\n");
 	initTables();
+	printf("init succeed\n");
 	ExtDefList(root->children);
 	checkFunc();
 }
 
 void ExtDefList(struct Node* root){
-	// printf("Enter ExtDefList\n");
+	printf("enter extdeflist\n");
 	struct Node* child = root->children;
 	if(child != NULL){
 		ExtDef(child);
@@ -33,7 +34,7 @@ void ExtDefList(struct Node* root){
 }
 
 void ExtDef(struct Node* root){
-	// printf("Enter ExtDef\n");
+	printf("Enter ExtDef\n");
 	struct Node* child = root->children;
 	Type* type = Specifier(child);
 	child = child->next;
@@ -96,6 +97,7 @@ void ExtDef(struct Node* root){
 }
 
 Type* Specifier(struct Node* root){
+	printf("enter specifier\n");
 	Type* ret;
 	struct Node* child = root->children;
 	if(strcmp(child->name,"TYPE") == 0){
@@ -108,14 +110,14 @@ Type* Specifier(struct Node* root){
 			ret->u.basic = float_type;
 		}
 	}
-	else/* if(strcmp(child->name,"StructSpecifier") == 0)*/{
+	else{
 		ret = StructSpecifier(child);
 	}
 	return ret;
 }
 
 Type* StructSpecifier(struct Node* root){
-	// printf("Enter StructSpecifier\n");
+	printf("Enter StructSpecifier\n");
 	struct Node* child = root->children;
 	Type* type = malloc(sizeof(struct Type_));
 	type->kind = STRUCTURE;
@@ -153,8 +155,7 @@ Type* StructSpecifier(struct Node* root){
 				return type;
 			}
 			int i = insertVar(temp);
-			if(i == 1)
-			{
+			if(i == 1){
 				printf("Error type 16 at line %d: Duplicated name ‘%s’\n",name_of_struct->lineno,temp->name);
 				return NULL;
 			}
@@ -162,15 +163,15 @@ Type* StructSpecifier(struct Node* root){
 		}
 		child = child->next;
 	}
+	return NULL;
 }
 
 void ExtDecList(struct Node* root,Type* type){
-	// printf("Enter ExtDecList\n");
+	printf("Enter ExtDecList\n");
 	struct Node* child = root->children;
-	FieldList* f=VarDec(child,type,1);	//1:global variable
+	FieldList* f = VarDec(child,type,1);	//1:global variable
 	if(f != NULL){
-		if(f->type->kind==ARRAY)			//array
-		{
+		if(f->type->kind==ARRAY){
 			Operand* op = malloc(sizeof(struct Operand_));
 			op->kind = TEMPVAR;
 			op->u.var_no = varCount++;
@@ -186,7 +187,6 @@ void ExtDecList(struct Node* root,Type* type){
 			Operand* v = malloc(sizeof(struct Operand_));
 			v->kind = VARIABLE;
 			v->u.value = f->name;
-
 			InterCode* addrcode = malloc(sizeof(struct InterCode_));
 			addrcode->kind = RIGHTAT_K;
 			addrcode->u.assign.left = v;
@@ -197,14 +197,14 @@ void ExtDecList(struct Node* root,Type* type){
 		}
 	}
 	child = child->next;
-	while(child != NULL){
-		child->next;
+	if(child != NULL){
+		child = child->next;
 		ExtDecList(child,type);
 	}
 }
 
 FieldList* VarDec(struct Node* root,Type* type,int from){
-	// printf("Enter VarDec\n");
+	printf("Enter VarDec\n");
 	struct Node* child = root->children;
 	FieldList* ret;
 	if(strcmp(child->name,"ID") == 0){
@@ -254,7 +254,7 @@ FieldList* VarDec(struct Node* root,Type* type,int from){
 }
 
 Fundef* FunDec(struct Node* root,Type* type){
-	// printf("Enter FunDec\n");
+	printf("Enter FunDec\n");
 	struct Node* child = root->children;
 	Fundef* f = malloc(sizeof(struct Fundef_));
 	f->name = malloc(sizeof(child->value));
@@ -266,21 +266,19 @@ Fundef* FunDec(struct Node* root,Type* type){
 	f->args_list = NULL;
 	child = child->next;
 	child = child->next;
-	if(strcmp(child->name,"VarList") ==  0)
-	{
+	if(strcmp(child->name,"VarList") ==  0){
 		f->args_list = VarList(child);
 	}
 	return f;
 }
 
 FieldList* VarList(struct Node* root){
-	// printf("Enter VarList\n");
+	printf("Enter VarList\n");
 	struct Node* child = root->children;
 	FieldList* f;
 	f = ParamDec(child);
 	child = child->next;
-	if(child != NULL)
-	{
+	if(child != NULL){
 		FieldList* p = f;
 		child = child->next;
 		if(p == NULL)
@@ -295,7 +293,7 @@ FieldList* VarList(struct Node* root){
 }
 
 FieldList* ParamDec(struct Node* root){
-	// printf("Enter ParamDec\n");
+	printf("Enter ParamDec\n");
 	struct Node *child = root->children;
 	FieldList* f;
 	Type* type;
@@ -305,7 +303,7 @@ FieldList* ParamDec(struct Node* root){
 }
 
 void CompSt(struct Node* root,Type* retype){
-	// printf("Enter CompSt\n");
+	printf("Enter CompSt\n");
 	struct Node *child = root->children;
 	child=child->next;
 	DefList(child,1);
@@ -314,7 +312,7 @@ void CompSt(struct Node* root,Type* retype){
 }
 
 void StmtList(struct Node* root,Type* retype){
-	// printf("Enter StmtList\n");
+	printf("Enter StmtList\n");
 	struct Node *child = root->children;
 	if(child == NULL)
 		return;
@@ -324,44 +322,7 @@ void StmtList(struct Node* root,Type* retype){
 }
 
 void Stmt(struct Node* n,Type* retype){
-	// // printf("Enter Stmt\n");
-	// struct Node* child = root->children;
-	// while(child != NULL){
-	// 	if(strcmp(child->name,"RETURN") == 0){
-	// 		child = child->next;
-	// 		Operand* op = malloc(sizeof(struct Operand_));
-	// 		op->kind=TEMPVAR;
-	// 		op->u.var_no=varCount++;
-	// 		Type* t = Exp(child,op);
-	// 		if(retype==NULL||t==NULL)return;
-	// 		if(!typeEqual(retype,t)){
-	// 			printf("Error type 8 at line %d: The return type mismatched\n",child->lineno);
-	// 			return;
-	// 		}
-	// 		InterCode* code=malloc(sizeof(struct InterCode_));
-	// 		code->kind = RETURN_K;
-	// 		code->u.one.op = op;
-	// 		InterCodes* tempNodeofReturn = malloc(sizeof(struct InterCodes_));
-	// 		tempNodeofReturn->code = code;
-	// 		insertCode(tempNodeofReturn);
-	//
-	// 		return;
-	// 	}
-	// 	else if(strcmp(child->name,"LP") == 0){
-	// 		child = child->next;
-	// 		Type* t = Exp(child);
-	// 		if(t != NULL && !(t->kind == 0 && t->u.basic == int_type)){
-	// 			printf("Error type ? conditional statement wrong type\n");
-	// 		}
-	// 	}
-	// 	else if(strcmp(child->name,"Exp") == 0){
-	// 		Exp(child);
-	// 	}
-	// 	else if(strcmp(child->name,"Stmt") == 0){
-	// 		Stmt(child,retype);
-	// 	}
-	// 	child = child->next;
-	// }
+	printf("enter stmt\n");
 	struct Node*child=n->children;
 	if(child == NULL)
 		return;
@@ -373,8 +334,7 @@ void Stmt(struct Node* n,Type* retype){
 		CompSt(child,retype);
 		return;
 	}
-	else if(strcmp(child->name,"RETURN")==0)
-	{
+	else if(strcmp(child->name,"RETURN")==0){
 		child=child->next;
 		Operand* op=malloc(sizeof(struct Operand_));
 		op->kind=TEMPVAR;
@@ -495,7 +455,7 @@ void Stmt(struct Node* n,Type* retype){
 }
 
 FieldList* DefList(struct Node* root,int from){
-	// printf("Enter DefList\n");
+	printf("Enter DefList\n");
 	if(root->children == NULL){
 		return NULL;
 	}
@@ -507,8 +467,7 @@ FieldList* DefList(struct Node* root,int from){
 	FieldList* t = f;
 	child = child->next;
 	if(t != NULL){
-		while(t->next!=NULL)	//find the last field
-		{
+		while(t->next!=NULL){
 			t=t->next;
 		}
 		t->next=DefList(child,from);
@@ -519,7 +478,7 @@ FieldList* DefList(struct Node* root,int from){
 }
 
 FieldList* Def(struct Node* root,int from){
-	// printf("Enter Def\n");
+	printf("Enter Def\n");
 	struct Node* child = root->children;
 	FieldList* f;
 	Type* type = Specifier(child);
@@ -529,7 +488,7 @@ FieldList* Def(struct Node* root,int from){
 }
 
 FieldList* DecList(struct Node* root,Type* type,int from){
-	// printf("Enter DecList\n");
+	printf("Enter DecList\n");
 	struct Node *child = root->children;
 	FieldList* f;
 	f = Dec(child,type,from);
@@ -537,8 +496,7 @@ FieldList* DecList(struct Node* root,Type* type,int from){
 	if(child != NULL){
 		child = child->next;
 		FieldList* p = f;
-		if(p != NULL)
-		{
+		if(p != NULL){
 			while(p->next != NULL)
 				p=p->next;
 			p->next=DecList(child,type,from);
@@ -550,7 +508,7 @@ FieldList* DecList(struct Node* root,Type* type,int from){
 }
 
 FieldList* Dec(struct Node* root,Type* type,int from){
-	// printf("Enter Dec\n");
+	printf("Enter Dec\n");
 	struct Node *child = root->children;
 	FieldList* f;
 	f = VarDec(child,type,from);
@@ -617,188 +575,8 @@ FieldList* Dec(struct Node* root,Type* type,int from){
 	return f;
 }
 
-// Type* Exp(struct Node* root){
-// 	// printf("Enter Exp\n");
-// 	struct Node *child = root->children;
-// 	// printf("%s\n",child->value);
-// 	Type* type;
-// 	if(strcmp(child->name,"Exp") == 0){
-// 		struct Node *child2 = child->next;
-// 		if(strcmp(child2->name,"ASSIGNOP")==0)
-// 		{
-// 			//left value
-// 			struct Node *leftChild = child->children;
-// 			Type* leftType=NULL;
-// 			//because of associative property and priority,it is right
-// 			if(strcmp(leftChild->name,"ID") == 0 && leftChild->next == NULL)
-// 				leftType = Exp(child);
-// 			else if(strcmp(leftChild->name,"Exp") == 0&& leftChild->next != NULL &&strcmp(leftChild->next->name,"LB") == 0)	//array
-// 				leftType = Exp(child);
-// 			else if(strcmp(leftChild->name,"Exp") == 0&&leftChild->next != NULL&&strcmp(leftChild->next->name,"DOT") == 0){
-// 				leftType = Exp(child);
-// 			}
-// 			else
-// 				printf("Error type 6 at line %d: The left-hand side of an assignment must be a variable\n",child->lineno);
-// 			child2 = child2->next;
-// 			Type* rightType = Exp(child2);
-// 			if(leftType==NULL||rightType==NULL)
-// 				return NULL;
-// 			if(typeEqual(leftType,rightType))
-// 				return leftType;
-// 			else{
-// 				printf("Error type 5 at line %d: Type mismatched for assignment\n",child->lineno);
-// 				return NULL;
-// 			}
-// 		}
-// 		else if(strcmp(child2->name,"PLUS")==0||strcmp(child2->name,"MINUS")==0||strcmp(child2->name,"STAR")==0||strcmp(child2->name,"DIV")==0||strcmp(child2->name,"RELOP")==0){
-// 			Type* t = Exp(child);
-// 			// printf("%s\n",child->children->name);
-// 		    // printf("t`s type: %d,%d\n",t->kind,t->u.basic);
-// 			child2 = child2->next;
-// 			// printf("%s\n",child2->children->value);
-// 			Type* t2 = Exp(child2);
-// 			// printf("t2`s type: %d,%d\n",t2->kind,t2->u.basic);
-// 			if(t == NULL||t2 == NULL)
-// 				return NULL;
-// 			else if(t->kind == BASIC && t2->kind == BASIC && t->u.basic == t2->u.basic){
-// 				// printf("%d,%d\n",t->kind,t2->kind);
-// 				return t;
-// 			}
-// 			else{
-// 				printf("Error type 7 at line %d: Type mismatched for Operands\n",child->lineno);
-// 					return NULL;
-// 			}
-// 		}
-// 		else if(strcmp(child2->name,"LB")==0){
-// 			Type* t1 = Exp(child);
-// 			if(t1 == NULL)
-// 				return NULL;
-// 			if(t1->kind != 1){
-// 				printf("Error type 10 at line %d: '",child->lineno);
-// 				printNode(child);
-// 				printf("' is not an array\n");
-// 				return NULL;
-// 			}
-// 			child2 = child2->next;
-// 			Type* t2 = Exp(child2);
-// 			if(t2 == NULL)
-// 				return NULL;
-// 			if(!(t2->kind == BASIC && t2->u.basic == int_type)){
-// 				printf("Error type 12 at line %d:",child2->lineno);
-// 				printNode(child2);
-// 				printf("' is not an integer.\n");
-// 				return NULL;
-// 			}
-// 			return t1->u.array.elem;
-// 		}
-// 		else if(strcmp(child2->name,"DOT")==0){
-// 			Type* t1 = Exp(child);
-// 			if(t1 == NULL)
-// 				return NULL;
-// 			if(t1->kind != 2){
-// 				printf("Error type 13 at line %d: Illegal use of '.'\n",child->lineno);
-// 				return NULL;
-// 			}
-// 			FieldList* fl = t1->u.structure->next;
-// 			child2 = child2->next;
-// 			while(fl != NULL)
-// 			{
-// 				if(strcmp(fl->name,child2->value)==0)
-// 					return fl->type;
-// 				fl=fl->next;
-// 			}
-// 			printf("Error type 14 at line %d: Non-existent field '%s‘\n",child2->lineno,child2->value);
-// 			return NULL;
-// 		}
-//
-// 	}
-// 	else if(strcmp(child->name,"LP")==0)	//()
-// 	{
-// 		child = child->next;
-// 		return Exp(child);
-// 	}
-// 	else if(strcmp(child->name,"MINUS")==0)	//-
-// 	{
-// 		child = child->next;
-// 		Type* t = Exp(child);
-// 		if(t == NULL)
-// 			return NULL;
-// 		if(t->kind!=0){
-// 			printf("Error type 7 at line %d: Operands type mismatched\n",child->lineno);
-// 			return NULL;
-// 		}
-// 		return t;
-// 	}
-// 	else if(strcmp(child->name,"NOT")==0)	//not
-// 	{
-// 		child = child->next;
-// 		Type* t = Exp(child);
-// 		if(t == NULL)
-// 			return NULL;
-// 		if(t->kind == 0 && t->u.basic == int_type)
-// 			return t;
-// 		printf("Error type 7 at line %d: Operands type mismatched\n",child->lineno);
-// 		return NULL;
-// 	}
-// 	else if(strcmp(child->name,"ID") ==0 && child->next != NULL){
-// 		FieldList* f1 = getVarByName(child->value);
-// 		Fundef* f = getFuncByName(child->value);
-// 		if(f1 != NULL && f == NULL){
-// 			printf("Error type 11 at line %d: '%s' is not a function\n",child->lineno,child->value);
-// 			return NULL;
-// 		}
-// 		if(f == NULL||!f->hasDefined){
-// 			printf("Error type 2 at line %d: Undefined function '%s'\n",child->lineno,child->value);
-// 			return NULL;
-// 		}
-// 		FieldList* param = f->args_list;
-// 		child = child->next->next;
-// 		if(strcmp(child->name,"RP") == 0){
-// 			if(param != NULL)
-// 			{
-// 				printf("Error type 9 at line %d: Function %s is not applicable for the arguments\n",child->lineno,f->name);
-// 			}
-// 		}
-// 		else{
-// 			if(!Args(child,param)){
-// 				printf("Error type 9 at line %d: Function %s is not applicable for the arguments\n",child->lineno,f->name);
-// 			}
-// 		}
-// 		return f->ret;
-// 	}
-// 	else if(strcmp(child->name,"ID") == 0)
-// 	{
-// 		// printf("enter ID\n");
-// 		FieldList* f = getVarByName(child->value);
-// 		// printf("quchulaide kind:%d,u.basic:%d\n",f->type->kind,f->type->u.basic);
-// 	//	printf("ID:%s\n",f->name);
-// 		if(f == NULL)
-// 		{
-// 			printf("Error type 1 at line %d: Undefined variable '%s'\n",child->lineno,child->value);
-// 			return NULL;
-// 		}
-// 		return f->type;
-// 	}
-// 	else if(strcmp(child->name,"INT")==0)
-// 	{
-// 		// printf("enter int\n");
-// 		Type* t = malloc(sizeof(struct Type_));
-// 		t->kind = BASIC;
-// 		t->u.basic = int_type;
-// 		return t;
-// 	}
-// 	else if(strcmp(child->name,"FLOAT")==0)
-// 	{
-// 		Type* t = malloc(sizeof(struct Type_));
-// 		t->kind = BASIC;
-// 		t->u.basic=float_type;
-// 		return t;
-// 	}
-//
-// }
-
 Type* Exp(struct Node *n,Operand* place){
-
+	printf("enter exp\n");
 	struct Node *child = n->children;
 	if(strcmp(child->name,"Exp")==0){
 		struct Node *child2 = child->next;
@@ -850,9 +628,9 @@ Type* Exp(struct Node *n,Operand* place){
 				code2->u.assign.left = place;
 				code2->u.assign.right = rightOp;
 				if(place != NULL){
-					InterCodes* tempNodeOfAssign = malloc(sizeof(struct InterCodes_));
-					tempNodeOfAssign->code = code2;
-					insertCode(tempNodeOfAssign);
+					InterCodes* tempNodeOfcode2 = malloc(sizeof(struct InterCodes_));
+					tempNodeOfcode2->code = code2;
+					insertCode(tempNodeOfcode2);
 				}
 				return leftType;
 			}
@@ -943,16 +721,16 @@ Type* Exp(struct Node *n,Operand* place){
 			code2->u.assign.left = place;
 			code2->u.assign.right = c1;
 			if(place!=NULL){
-				InterCodes* tempNodeOfrelop = malloc(sizeof(struct InterCodes_));
-				tempNodeOfrelop->code = code2;
-				insertCode(tempNodeOfrelop);		//code2
+				InterCodes* tempNodeOfcode2 = malloc(sizeof(struct InterCodes_));
+				tempNodeOfcode2->code = code2;
+				insertCode(tempNodeOfcode2);		//code2
 			}
 			InterCode* lb2code=malloc(sizeof(struct InterCode_));
 			lb2code->kind=LABEL_K;
 			lb2code->u.one.op=lb2;
-			InterCodes* tempNodeOflb2 = malloc(sizeof(struct InterCodes_));
-			tempNodeOflb2->code = lb2code;
-			insertCode(tempNodeOflb2);
+			InterCodes* tempNodeOflb2code = malloc(sizeof(struct InterCodes_));
+			tempNodeOflb2code->code = lb2code;
+			insertCode(tempNodeOflb2code);
 			return t;
 		}
 		else if(strcmp(child2->name,"LB")==0){
@@ -1018,15 +796,11 @@ Type* Exp(struct Node *n,Operand* place){
 			else
 				code1->u.binop.result=place;
 
-			//if(aop->kind==VADDRESS)
-			//	aop->kind=VARIABLE;
-			//else if(aop->kind==TADDRESS)
-			//	aop->kind=TEMPVAR;
 			code1->u.binop.op1=aop;
 			code1->u.binop.op2=offset;
-			InterCodes* tempnoOfCode1 = malloc(sizeof(struct InterCodes_));
-			tempnoOfCode1->code = code1;
-			insertCode(tempnoOfCode1);
+			InterCodes* tempNodeOfCode1 = malloc(sizeof(struct InterCodes_));
+			tempNodeOfCode1->code = code1;
+			insertCode(tempNodeOfCode1);
 
 			return t1->u.array.elem;
 		}
@@ -1081,18 +855,13 @@ Type* Exp(struct Node *n,Operand* place){
 						InterCode* code1=malloc(sizeof(struct InterCode_));
 						code1->kind=ADD_K;
 
-						if(fl->type->kind==0)
-						{
+						if(fl->type->kind==0){
 							place->kind=TADDRESS;
 							place->u.name=temp;
 							code1->u.binop.result=temp;
 						}
 						else
 							code1->u.binop.result=place;
-						//if(op1->kind==TADDRESS)
-						//	op1->kind=TEMPVAR;
-						//else if(op1->kind==VADDRESS)
-						//	op1->kind=VARIABLE;
 						code1->u.binop.op1=op1;
 						code1->u.binop.op2=conOp;
 						InterCodes* tempNodeOfCode1 = malloc(sizeof(struct InterCodes_));
@@ -1244,10 +1013,10 @@ Type* Exp(struct Node *n,Operand* place){
 			Operand* arg_list_head=malloc(sizeof(struct Operand_));
 			arg_list_head->next=NULL;
 			if(!Args(child,param,arg_list_head)){
-				printf("Error type 9 at line%d : The method '%s(",child->lineno,f->name);
+				printf("error type 9\n");
+				printf("Error type 9 at line %d : The method '%s(",child->lineno,f->name);
 				printparam(param);
 				printf(")'is not applicable for the arguments '(");
-				//printargs(child);
 				printf(")'\n");
 			}
 			else{
@@ -1266,6 +1035,7 @@ Type* Exp(struct Node *n,Operand* place){
 						argcode->kind=ARG_K;
 						argcode->u.one.op=arg_list_head;
 						InterCodes* tempNodeOfargcode = malloc(sizeof(struct InterCodes_));
+						tempNodeOfargcode->code = argcode;
 						insertCode(tempNodeOfargcode);		//Arg arg
 						arg_list_head=arg_list_head->next;
 					}
@@ -1290,7 +1060,6 @@ Type* Exp(struct Node *n,Operand* place){
 			printf("Error type 1 at line %d: Undefined variable '%s'\n",child->lineno,child->value);
 			return NULL;
 		}
-
 		//print code here
 		place->kind=VARIABLE;
 		place->u.value=child->value;
@@ -1322,6 +1091,7 @@ Type* Exp(struct Node *n,Operand* place){
 }
 
 bool Args(struct Node* n,FieldList* f,Operand* arg_list){
+	printf("enter args\n");
 	if(n==NULL&&f==NULL)
 		return true;
 	else if(n==NULL||f==NULL)
@@ -1334,7 +1104,7 @@ bool Args(struct Node* n,FieldList* f,Operand* arg_list){
 	t1->next=arg_list->next;
 	arg_list->next=t1;
 	if(t==NULL)
-		return true;		//don't need to report the mistake again
+		return true;
 	if(!typeEqual(t,f->type))
 		return false;
 	if(child->next==NULL&&f->next==NULL)
@@ -1345,6 +1115,7 @@ bool Args(struct Node* n,FieldList* f,Operand* arg_list){
 }
 
 Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false){
+	printf("enter exp_cond\n");
 	struct Node *child=n->children;
 	Type* type;
 	if(strcmp(child->name,"Exp")==0){

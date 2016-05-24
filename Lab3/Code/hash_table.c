@@ -9,20 +9,16 @@ unsigned int hash(char* name){
 	}
 	return val;
 }
-/*
-int read(){
-	int input;
-	scanf("%d",input);
-	return input;
-}
 
-int write(int output){
-	printf("%d\n",output);
-	return 0;
-}
-*/
 void initTables(){
+	printf("enter initTables\n");
+	int i = 0;
+	for(;i < SYMBOL_TABLE_SIZE;i++){
+		VarTable[i] = NULL;
+		FuncTable[i] = NULL;
+	}
 	Fundef* read_func = malloc(sizeof(struct Fundef_));
+	read_func->name = malloc(sizeof("read"));
 	strcpy(read_func->name,"read");
 	Type* read_ret = malloc(sizeof(struct Type_));
 	read_ret->kind = BASIC;
@@ -32,33 +28,21 @@ void initTables(){
 	read_func->row = 0;
 	read_func->samehash = NULL;
 	read_func->hasDefined = true;
-	Fundef* write_func = malloc(sizeof(struct Fundef_));
-	strcpy(write_func->name,"write");
-	Type* write_ret = malloc(sizeof(struct Type_));
-	write_ret->kind = BASIC;
-	write_ret->u.basic = int_type;
-	write_func->ret = write_ret;
-	FieldList* args_list = malloc(sizeof(struct FieldList_));
-	args_list->next = NULL;
-	args_list->samehash = NULL;
-	strcpy(args_list->name,"output");
-	Type* args_list_type = malloc(sizeof(struct Type_));
-	args_list_type->kind = BASIC;
-	args_list_type->u.basic = int_type;
-	args_list->type = args_list_type;
-	write_func->args_list = args_list;
-	write_func->row = 0;
-	write_func->samehash = NULL;
-	write_func->hasDefined = true;
-	int i = 0;
-	for(;i < SYMBOL_TABLE_SIZE;i++){
-		VarTable[i] = NULL;
-		FuncTable[i] = NULL;
-	}
-
 	insertFunc(read_func,1);
-	insertFunc(write_func,1);
 
+	Fundef* write_func = malloc(sizeof(struct Fundef_));
+	write_func->name = malloc(sizeof("write"));
+	strcpy(write_func->name,"write");
+	write_func->hasDefined=true;
+	write_func->row = 0;
+	write_func->ret = read_func->ret;
+	write_func->args_list = malloc(sizeof(struct FieldList_));
+	write_func->args_list->name=malloc(16);
+	strcpy(write_func->args_list->name,"write_param");
+	write_func->args_list->type = write_func->ret;
+	write_func->args_list->next = NULL;
+	write_func->samehash = NULL;
+	insertFunc(write_func,1);
 }
 
 FieldList* getVarByName(char* name){

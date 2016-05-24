@@ -164,10 +164,19 @@ int main(int argc,char**argv){
 	yylineno = 1;
 	yyrestart(f);
 	yyparse();
-	// printTree(root,0);
 	if(!err){
-		// printTree(root,0);
 		Program(root);
+        printf("generate intercode succeed\n");
+		if(argc <= 2)
+			return 1;
+		optIF();	//label
+		rmLabel();
+
+		lookCon();		//temp
+		rddCode();		//variable
+		sameRight();
+
+		printCode(argv[2]);
 	}
 	return 0;
 }
