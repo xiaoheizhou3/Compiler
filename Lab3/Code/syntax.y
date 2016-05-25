@@ -167,14 +167,14 @@ int main(int argc,char**argv){
 	if(!err){
 		// printTree(root,0);
 		Program(root);
-        printf("generate intercode succeed\n");
-		optIF();	//label
-		rmLabel();
-
-		lookCon();		//temp
-		rddCode();
-			//variable
-		sameRight();
+		
+		// optIF();	//label
+		// rmLabel();
+		//
+		// lookCon();		//temp
+		// rddCode();
+		// 	//variable
+		// sameRight();
 		if(argc <= 2)
 			return 1;
 		printCode(argv[2]);

@@ -97,5 +97,4 @@ void rddCode();
 void lookCon();
 void sameRight();
 
-
 #endif

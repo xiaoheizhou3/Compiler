@@ -16,15 +16,15 @@ void checkFunc(){
 }
 
 void Program(struct Node* root){
-	printf("enter program\n");
+	// printf("enter program\n");
 	initTables();
-	printf("init succeed\n");
+	// printf("init succeed\n");
 	ExtDefList(root->children);
 	checkFunc();
 }
 
 void ExtDefList(struct Node* root){
-	printf("enter extdeflist\n");
+	// printf("enter extdeflist\n");
 	struct Node* child = root->children;
 	if(child != NULL){
 		ExtDef(child);
@@ -34,11 +34,11 @@ void ExtDefList(struct Node* root){
 }
 
 void ExtDef(struct Node* root){
-	printf("Enter ExtDef\n");
-	printf("function extdef :root->name:%s\n",root->name);
+	// printf("Enter ExtDef\n");
+	// printf("function extdef :root->name:%s\n",root->name);
 	struct Node* child = root->children;
-	printf("function extdef :child->name:%s\n",child->name);
-	printf("function extdef :child->value:%s\n",child->value);
+	// printf("function extdef :child->name:%s\n",child->name);
+	// printf("function extdef :child->value:%s\n",child->value);
 	Type* type = Specifier(child);
 	child = child->next;
 	if(strcmp(child->name,"SEMI") == 0){
@@ -100,11 +100,11 @@ void ExtDef(struct Node* root){
 }
 
 Type* Specifier(struct Node* root){
-	printf("enter specifier\n");
+	// printf("enter specifier\n");
 	Type* ret;
 	struct Node* child = root->children;
 	if(strcmp(child->name,"TYPE") == 0){
-		printf("child->name == type\n");
+		// printf("child->name == type\n");
 		ret = malloc(sizeof(struct Type_));
 		ret->kind = BASIC;
 		if(strcmp(child->value,"int") == 0){
@@ -121,7 +121,7 @@ Type* Specifier(struct Node* root){
 }
 
 Type* StructSpecifier(struct Node* root){
-	printf("Enter StructSpecifier\n");
+	// printf("Enter StructSpecifier\n");
 	struct Node* child = root->children;
 	Type* type = malloc(sizeof(struct Type_));
 	type->kind = STRUCTURE;
@@ -171,7 +171,7 @@ Type* StructSpecifier(struct Node* root){
 }
 
 void ExtDecList(struct Node* root,Type* type){
-	printf("Enter ExtDecList\n");
+	// printf("Enter ExtDecList\n");
 	struct Node* child = root->children;
 	FieldList* f = VarDec(child,type,1);	//1:global variable
 	if(f != NULL){
@@ -208,7 +208,7 @@ void ExtDecList(struct Node* root,Type* type){
 }
 
 FieldList* VarDec(struct Node* root,Type* type,int from){
-	printf("Enter VarDec\n");
+	// printf("Enter VarDec\n");
 	struct Node* child = root->children;
 	FieldList* ret;
 	if(strcmp(child->name,"ID") == 0){
@@ -258,7 +258,7 @@ FieldList* VarDec(struct Node* root,Type* type,int from){
 }
 
 Fundef* FunDec(struct Node* root,Type* type){
-	printf("Enter FunDec\n");
+	// printf("Enter FunDec\n");
 	struct Node* child = root->children;
 	Fundef* f = malloc(sizeof(struct Fundef_));
 	f->name = malloc(sizeof(child->value));
@@ -277,7 +277,7 @@ Fundef* FunDec(struct Node* root,Type* type){
 }
 
 FieldList* VarList(struct Node* root){
-	printf("Enter VarList\n");
+	// printf("Enter VarList\n");
 	struct Node* child = root->children;
 	FieldList* f;
 	f = ParamDec(child);
@@ -297,7 +297,7 @@ FieldList* VarList(struct Node* root){
 }
 
 FieldList* ParamDec(struct Node* root){
-	printf("Enter ParamDec\n");
+	// printf("Enter ParamDec\n");
 	struct Node *child = root->children;
 	FieldList* f;
 	Type* type;
@@ -307,7 +307,7 @@ FieldList* ParamDec(struct Node* root){
 }
 
 void CompSt(struct Node* root,Type* retype){
-	printf("Enter CompSt\n");
+	// printf("Enter CompSt\n");
 	struct Node *child = root->children;
 	child=child->next;
 	DefList(child,1);
@@ -316,7 +316,7 @@ void CompSt(struct Node* root,Type* retype){
 }
 
 void StmtList(struct Node* root,Type* retype){
-	printf("Enter StmtList\n");
+	// printf("Enter StmtList\n");
 	struct Node *child = root->children;
 	if(child == NULL)
 		return;
@@ -326,7 +326,7 @@ void StmtList(struct Node* root,Type* retype){
 }
 
 void Stmt(struct Node* n,Type* retype){
-	printf("enter stmt\n");
+	// printf("enter stmt\n");
 	struct Node*child=n->children;
 	if(child == NULL)
 		return;
@@ -344,12 +344,13 @@ void Stmt(struct Node* n,Type* retype){
 		op->kind=TEMPVAR;
 		op->u.var_no=varCount++;
 		Type* t=Exp(child,op);
-		if(retype==NULL||t==NULL)return;
-		printf("function exp mean to judge retype\n");
+		if(retype == NULL||t == NULL)
+			return;
 		if(!typeEqual(retype,t)){
 			printf("Error type 8 at line %d: The return type mismatched\n",child->lineno);
 			return;
 		}
+
 		InterCode* code = malloc(sizeof(struct InterCode_));
 		code->kind=RETURN_K;
 		code->u.one.op=op;
@@ -359,7 +360,8 @@ void Stmt(struct Node* n,Type* retype){
 		return;
 	}
 	else if(strcmp(child->name,"IF")==0){
-		child=child->next->next;
+		printf("function stmt enter IF\n");
+		child = child->next->next;
 		//new temp
 		Operand* lb1=malloc(sizeof(struct Operand_));
 		lb1->kind=LABEL;
@@ -367,8 +369,8 @@ void Stmt(struct Node* n,Type* retype){
 		Operand* lb2=malloc(sizeof(struct Operand_));
 		lb2->kind=LABEL;
 		lb2->u.var_no=labCount++;
-		Type* t=Exp_Cond(child,lb1,lb2);	//TODO:this function
-		if(t!=NULL&&!((t->kind==0||t->kind==3)&&t->u.basic==int_type)){
+		Type* t=Exp_Cond(child,lb1,lb2);
+		if(t != NULL && !((t->kind==0||t->kind==3) && t->u.basic == int_type)){
 			printf("Error type ? conditional statement wrong type\n");
 		}
 		//print label1
@@ -460,15 +462,13 @@ void Stmt(struct Node* n,Type* retype){
 }
 
 FieldList* DefList(struct Node* root,int from){
-	printf("Enter DefList\n");
+	// printf("Enter DefList\n");
 	if(root->children == NULL){
 		return NULL;
 	}
 	FieldList* f;
 	struct Node *child = root->children;
-	// printf("mean to enter Def\n");
 	f = Def(child,from);
-	// printf("go out from Def\n");
 	FieldList* t = f;
 	child = child->next;
 	if(t != NULL){
@@ -483,7 +483,7 @@ FieldList* DefList(struct Node* root,int from){
 }
 
 FieldList* Def(struct Node* root,int from){
-	printf("Enter Def\n");
+	// printf("Enter Def\n");
 	struct Node* child = root->children;
 	FieldList* f;
 	Type* type = Specifier(child);
@@ -493,7 +493,7 @@ FieldList* Def(struct Node* root,int from){
 }
 
 FieldList* DecList(struct Node* root,Type* type,int from){
-	printf("Enter DecList\n");
+	// printf("Enter DecList\n");
 	struct Node *child = root->children;
 	FieldList* f;
 	f = Dec(child,type,from);
@@ -513,13 +513,12 @@ FieldList* DecList(struct Node* root,Type* type,int from){
 }
 
 FieldList* Dec(struct Node* root,Type* type,int from){
-	printf("Enter Dec\n");
+	// printf("Enter Dec\n");
 	struct Node *child = root->children;
 	FieldList* f;
 	f = VarDec(child,type,from);
 
-	if(f->type->kind==1&&from==1)
-	{
+	if(f->type->kind==1&&from==1){
 		//array space
 		Operand* op=malloc(sizeof(struct Operand_));
 		op->kind=TEMPVAR;
@@ -581,7 +580,7 @@ FieldList* Dec(struct Node* root,Type* type,int from){
 }
 
 Type* Exp(struct Node *n,Operand* place){
-	printf("enter exp\n");
+	// printf("enter exp\n");
 	struct Node *child = n->children;
 	if(strcmp(child->name,"Exp")==0){
 		struct Node *child2 = child->next;
@@ -971,7 +970,7 @@ Type* Exp(struct Node *n,Operand* place){
 		return t;
 	}
 	else if(strcmp(child->name,"ID")==0&&child->next!=NULL){
-        printf("check type 9\n");
+        // printf("check type 9\n");
 		FieldList* f1 = getVarByName(child->value);
 		Fundef* f = getFuncByName(child->value);
 		if(f1!=NULL&&f==NULL){
@@ -985,7 +984,7 @@ Type* Exp(struct Node *n,Operand* place){
 		FieldList* param = f->args_list;
 		child=child->next;
 		child=child->next;
-		printf("child->name:%s\n",child->name);
+		// printf("child->name:%s\n",child->name);
 		if(strcmp(child->name,"RP")==0){
 			if(param!=NULL){
 				printf("Error type 9 at line%d : The method '%s(",child->lineno,f->name);
@@ -1019,7 +1018,7 @@ Type* Exp(struct Node *n,Operand* place){
 			Operand* arg_list_head=malloc(sizeof(struct Operand_));
 			arg_list_head->next=NULL;
 			if(!Args(child,param,arg_list_head)){
-				printf("error type 9\n");
+				// printf("error type 9\n");
 				printf("Error type 9 at line %d : The method '%s(",child->lineno,f->name);
 				printparam(param);
 				printf(")'is not applicable for the arguments '(");
@@ -1097,7 +1096,7 @@ Type* Exp(struct Node *n,Operand* place){
 }
 
 bool Args(struct Node* n,FieldList* f,Operand* arg_list){
-	printf("enter args\n");
+	// printf("enter args\n");
 	if(n==NULL&&f==NULL)
 		return true;
 	else if(n==NULL||f==NULL)
@@ -1121,7 +1120,7 @@ bool Args(struct Node* n,FieldList* f,Operand* arg_list){
 }
 
 Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false){
-	printf("enter exp_cond\n");
+	// printf("enter exp_cond\n");
 	struct Node *child=n->children;
 	Type* type;
 	if(strcmp(child->name,"Exp")==0){

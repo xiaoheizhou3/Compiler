@@ -11,7 +11,7 @@ unsigned int hash(char* name){
 }
 
 void initTables(){
-	printf("enter initTables\n");
+	// printf("enter initTables\n");
 	int i = 0;
 	for(;i < SYMBOL_TABLE_SIZE;i++){
 		VarTable[i] = NULL;
