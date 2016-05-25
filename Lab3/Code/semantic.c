@@ -360,7 +360,6 @@ void Stmt(struct Node* n,Type* retype){
 		return;
 	}
 	else if(strcmp(child->name,"IF")==0){
-		printf("function stmt enter IF\n");
 		child = child->next->next;
 		//new temp
 		Operand* lb1=malloc(sizeof(struct Operand_));
@@ -393,12 +392,15 @@ void Stmt(struct Node* n,Type* retype){
 			InterCode* code2=malloc(sizeof(struct InterCode_));
 			code2->kind=GOTO_K;
 			code2->u.one.op=lb3;
+
 			InterCodes* tempNodeOfcode2 = malloc(sizeof(struct InterCodes_));
 			tempNodeOfcode2->code = code2;
 			insertCode(tempNodeOfcode2);			//goto label3
+
 			InterCodes* tempNodeOflb2code = malloc(sizeof(struct InterCodes_));
 			tempNodeOflb2code->code = lb2code;
 			insertCode(tempNodeOflb2code);		//label2
+
 			child=child->next->next;
 			Stmt(child,retype);			//code3
 			InterCode* lb3code=malloc(sizeof(struct InterCode_));
@@ -1121,10 +1123,10 @@ bool Args(struct Node* n,FieldList* f,Operand* arg_list){
 
 Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false){
 	// printf("enter exp_cond\n");
-	struct Node *child=n->children;
+	struct Node *child = n->children;
 	Type* type;
 	if(strcmp(child->name,"Exp")==0){
-		struct Node *child2=child->next;
+		struct Node *child2 = child->next;
 		if(strcmp(child2->name,"RELOP")==0){
 			//new temp
 			Operand* t1=malloc(sizeof(struct Operand_));
@@ -1155,7 +1157,7 @@ Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false){
 				gotolbf->kind=GOTO_K;
 				gotolbf->u.one.op=label_false;
 				InterCodes* tempNodeOfgotolbf = malloc(sizeof(struct InterCodes_));
-				tempNodeOfgotolbf->code = code3;
+				tempNodeOfgotolbf->code = gotolbf;
 				insertCode(tempNodeOfgotolbf);
 				return tp;
 			}
