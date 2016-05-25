@@ -165,17 +165,18 @@ int main(int argc,char**argv){
 	yyrestart(f);
 	yyparse();
 	if(!err){
+		// printTree(root,0);
 		Program(root);
         printf("generate intercode succeed\n");
-		if(argc <= 2)
-			return 1;
 		optIF();	//label
 		rmLabel();
 
 		lookCon();		//temp
-		rddCode();		//variable
+		rddCode();
+			//variable
 		sameRight();
-
+		if(argc <= 2)
+			return 1;
 		printCode(argv[2]);
 	}
 	return 0;

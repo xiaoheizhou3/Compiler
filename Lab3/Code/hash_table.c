@@ -89,25 +89,29 @@ int insertVar(FieldList* var){
 }
 
 bool typeEqual(Type* t1,Type* t2){
-	if(t1->kind != t2->kind){
+	if((t1->kind==0&&t2->kind==3)||(t1->kind==3&&t2->kind==0)){
+		if(t1->u.basic!=t2->u.basic){
+			return false;
+		}
+	}
+	else if(t1->kind!=t2->kind){
 		return false;
 	}
 	else{
-		if(t1->kind == BASIC){
-			if(t1->u.basic != t2->u.basic){
+		if(t1->kind==0){
+			if(t1->u.basic!=t2->u.basic)
 				return false;
-			}
 		}
-		else if(t1->kind == ARRAY){
-			return typeEqual(t1->u.array.elem,t2->u.array.elem);
-		}
-		else{
-			if(t1->u.structure->name == NULL || t2->u.structure->name == NULL){
+		else if(t1->kind==2){
+			//if a struct do not has  a name
+			if(t1->u.structure->name==NULL||t2->u.structure->name==NULL){
 				return paramEqual(t1->u.structure->next,t2->u.structure->next);
 			}
-			if(strcmp(t1->u.structure->name,t2->u.structure->name) != 0){
+			if(strcmp(t1->u.structure->name,t2->u.structure->name)!=0)
 				return false;
-			}
+		}
+		else if(t1->kind==1){
+			return typeEqual(t1->u.array.elem,t2->u.array.elem);
 		}
 	}
 	return true;

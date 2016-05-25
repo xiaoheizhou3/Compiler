@@ -35,7 +35,10 @@ void ExtDefList(struct Node* root){
 
 void ExtDef(struct Node* root){
 	printf("Enter ExtDef\n");
+	printf("function extdef :root->name:%s\n",root->name);
 	struct Node* child = root->children;
+	printf("function extdef :child->name:%s\n",child->name);
+	printf("function extdef :child->value:%s\n",child->value);
 	Type* type = Specifier(child);
 	child = child->next;
 	if(strcmp(child->name,"SEMI") == 0){
@@ -101,6 +104,7 @@ Type* Specifier(struct Node* root){
 	Type* ret;
 	struct Node* child = root->children;
 	if(strcmp(child->name,"TYPE") == 0){
+		printf("child->name == type\n");
 		ret = malloc(sizeof(struct Type_));
 		ret->kind = BASIC;
 		if(strcmp(child->value,"int") == 0){
@@ -341,6 +345,7 @@ void Stmt(struct Node* n,Type* retype){
 		op->u.var_no=varCount++;
 		Type* t=Exp(child,op);
 		if(retype==NULL||t==NULL)return;
+		printf("function exp mean to judge retype\n");
 		if(!typeEqual(retype,t)){
 			printf("Error type 8 at line %d: The return type mismatched\n",child->lineno);
 			return;
@@ -966,7 +971,7 @@ Type* Exp(struct Node *n,Operand* place){
 		return t;
 	}
 	else if(strcmp(child->name,"ID")==0&&child->next!=NULL){
-
+        printf("check type 9\n");
 		FieldList* f1 = getVarByName(child->value);
 		Fundef* f = getFuncByName(child->value);
 		if(f1!=NULL&&f==NULL){
@@ -980,6 +985,7 @@ Type* Exp(struct Node *n,Operand* place){
 		FieldList* param = f->args_list;
 		child=child->next;
 		child=child->next;
+		printf("child->name:%s\n",child->name);
 		if(strcmp(child->name,"RP")==0){
 			if(param!=NULL){
 				printf("Error type 9 at line%d : The method '%s(",child->lineno,f->name);
