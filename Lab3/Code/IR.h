@@ -4,30 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TEMPVAR  0
-#define VARIABLE 1
 #define CONSTANT 2
-#define VADDRESS  3
-#define LABEL    4
-#define FUNCTION 5
-#define TADDRESS 6
-#define ASSIGN_K 0
-#define ADD_K 1
-#define SUB_K 2
-#define MUL_K 3
-#define DIV_K 4
-#define RETURN_K 5
-#define LABEL_K  6
-#define GOTO_K   7
-#define IFGOTO_K 8
-#define READ_K	9
-#define WRITE_K 10
-#define CALL_K	11
-#define ARG_K	12
-#define FUNCTION_K 13
-#define PARAM_K	14
-#define DEC_K 15
-#define RIGHTAT_K  16
 
 typedef struct Operand_ Operand;
 typedef struct InterCode_ InterCode;
@@ -35,7 +12,7 @@ typedef struct Label_No_ Label_No;
 typedef struct InterCodes_ InterCodes;
 
 struct Operand_ {
-    enum {tempvar,variable,cons,vaddress,label,function,taddress} kind;
+    enum {TEMPVAR,VARIABLE,CONS,VADDRESS,LABEL,FUNCTION,TADDRESS} kind;
     union {
         int var_no;
         char* value;
@@ -45,8 +22,8 @@ struct Operand_ {
 };
 
 struct InterCode_ {
-    enum {assign_k,add_k,sub_k,mul_k,div_k,return_k,label_k,goto_k,ifgoto_k,\
-    read_k,write_k,call_k,arg_k,function_k,param_k,dec_k,rightat_k} kind;
+    enum {ASSIGN_K,ADD_K,SUB_K,MUL_K,DIV_K,RETURN_K,LABEL_K,GOTO_K,IFGOTO_K,\
+        READ_K,WRITE_K,CALL_K,ARG_K,FUNCTION_K,PARAM_K,DEC_K,RIGHTAT_K} kind;
     union {
         struct{			//return ,label,goto,read,write,arg, function
 			Operand* op;		//param

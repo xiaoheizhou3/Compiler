@@ -49,9 +49,10 @@ void initTables();
 FieldList* getVarByName(char* name);
 Fundef* getFuncByName(char* name);
 int insertVar(FieldList* var);
-bool paramEqual(FieldList* f1,FieldList* f2);
-bool typeEqual(Type* f1,Type* f2);
 int insertFunc(Fundef* func,int hasDefined);
+
+bool typeEqual(Type* f1,Type* f2);
+bool paramEqual(FieldList* f1,FieldList* f2);
 int typeSize(Type* type);
 
 #endif
