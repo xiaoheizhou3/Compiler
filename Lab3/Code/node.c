@@ -18,15 +18,17 @@ struct Node *initNode(char *name,char *value,int lineno){
 
 void addChild(struct Node* father,struct Node* child){
 
-	assert(father != NULL && child != NULL);
+	//assert(father != NULL && child != NULL);
     //ensure father and child are not NULL
 	if(father->children == NULL){
 		father->children = child;
 		father->children_tail = child;
+		// father->children_tail->next = NULL;
 	}
 	else{
 		father->children_tail->next = child;
 		father->children_tail = child;
+		// father->children_tail->next = NULL;
 	}
 }
 
@@ -42,8 +44,7 @@ void addChildList(struct Node* father, ...){
 
 void printNode(struct Node* root){
 	struct Node *child = root->children;
-	if(child==NULL)
-	{
+	if(child==NULL){
 		printf(" %s",root->value);
 		return;
 	}

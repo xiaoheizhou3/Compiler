@@ -5,7 +5,7 @@
 #define YYERROR_VERBOSE
 struct Node *root;
 int err = 0;
-
+int debug = 0;
 void yyerror(const char* msg){
 	fprintf(stderr,"Error type B at Line %d ,wrong input:  %s ?\n",yylineno,yylval.node->value);
 }
@@ -161,20 +161,18 @@ int main(int argc,char**argv){
 		perror(argv[1]);
 		return 1;
 	}
+
+
+	if(argc == 4){
+		debug = atoi(argv[3]);
+	}
 	yylineno = 1;
 	yyrestart(f);
 	yyparse();
 	if(!err){
 		// printTree(root,0);
 		Program(root);
-		
-		// optIF();	//label
-		// rmLabel();
-		//
-		// lookCon();		//temp
-		// rddCode();
-		// 	//variable
-		// sameRight();
+
 		if(argc <= 2)
 			return 1;
 		printCode(argv[2]);

@@ -4,6 +4,7 @@
 #include "node.h"
 #include "hash_table.h"
 #include "IR.h"
+#include "debug.h"
 
 void checkFunc();
 

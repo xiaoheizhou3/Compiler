@@ -16,7 +16,8 @@ void checkFunc(){
 }
 
 void Program(struct Node* root){
-	// printf("enter program\n");
+	if(debug == 1)
+		printf("enter program\n");
 	initTables();
 	// printf("init succeed\n");
 	ExtDefList(root->children);
@@ -24,7 +25,8 @@ void Program(struct Node* root){
 }
 
 void ExtDefList(struct Node* root){
-	// printf("enter extdeflist\n");
+	if(debug == 1)
+		printf("enter extdeflist\n");
 	struct Node* child = root->children;
 	if(child != NULL){
 		ExtDef(child);
@@ -34,11 +36,9 @@ void ExtDefList(struct Node* root){
 }
 
 void ExtDef(struct Node* root){
-	// printf("Enter ExtDef\n");
-	// printf("function extdef :root->name:%s\n",root->name);
+	if (debug == 1)
+		printf("Enter ExtDef\n");
 	struct Node* child = root->children;
-	// printf("function extdef :child->name:%s\n",child->name);
-	// printf("function extdef :child->value:%s\n",child->value);
 	Type* type = Specifier(child);
 	child = child->next;
 	if(strcmp(child->name,"SEMI") == 0){
@@ -49,6 +49,7 @@ void ExtDef(struct Node* root){
 	}
 	else if(strcmp(child->name,"FunDec") == 0){
 		Fundef* temp = FunDec(child,type);
+
 		child = child->next;
 		int i = 0;
 		if(strcmp(child->name,"SEMI") == 0){
@@ -81,8 +82,9 @@ void ExtDef(struct Node* root){
 					tempNodeOfFunction->code->u.one.op->kind = FUNCTION;
 					tempNodeOfFunction->code->u.one.op->u.value = temp->name;
 					insertCode(tempNodeOfFunction);
-					FieldList* args_list = malloc(sizeof(struct FieldList_));
-					args_list = temp->args_list;
+					// FieldList* args_list = malloc(sizeof(struct FieldList_));
+					FieldList* args_list = temp->args_list;
+
 					while(args_list != NULL){
 						InterCodes* tempNodeOfArgs = malloc(sizeof(struct InterCodes_));
 						tempNodeOfArgs->code = malloc(sizeof(struct InterCode_));
@@ -91,6 +93,7 @@ void ExtDef(struct Node* root){
 						tempNodeOfArgs->code->u.one.op->kind = VARIABLE;
 						tempNodeOfArgs->code->u.one.op->u.value = args_list->name;
 						insertCode(tempNodeOfArgs);
+						args_list = args_list->next;
 					}
 				}
 			}
@@ -100,7 +103,8 @@ void ExtDef(struct Node* root){
 }
 
 Type* Specifier(struct Node* root){
-	// printf("enter specifier\n");
+	if(debug == 1)
+		printf("enter specifier\n");
 	Type* ret;
 	struct Node* child = root->children;
 	if(strcmp(child->name,"TYPE") == 0){
@@ -121,7 +125,8 @@ Type* Specifier(struct Node* root){
 }
 
 Type* StructSpecifier(struct Node* root){
-	// printf("Enter StructSpecifier\n");
+	if(debug == 1)
+		printf("Enter StructSpecifier\n");
 	struct Node* child = root->children;
 	Type* type = malloc(sizeof(struct Type_));
 	type->kind = STRUCTURE;
@@ -171,7 +176,8 @@ Type* StructSpecifier(struct Node* root){
 }
 
 void ExtDecList(struct Node* root,Type* type){
-	// printf("Enter ExtDecList\n");
+	if(debug == 1)
+		printf("Enter ExtDecList\n");
 	struct Node* child = root->children;
 	FieldList* f = VarDec(child,type,1);	//1:global variable
 	if(f != NULL){
@@ -208,7 +214,8 @@ void ExtDecList(struct Node* root,Type* type){
 }
 
 FieldList* VarDec(struct Node* root,Type* type,int from){
-	// printf("Enter VarDec\n");
+	if(debug == 1)
+		printf("Enter VarDec\n");
 	struct Node* child = root->children;
 	FieldList* ret;
 	if(strcmp(child->name,"ID") == 0){
@@ -258,7 +265,8 @@ FieldList* VarDec(struct Node* root,Type* type,int from){
 }
 
 Fundef* FunDec(struct Node* root,Type* type){
-	// printf("Enter FunDec\n");
+	if(debug == 1)
+		printf("Enter FunDec\n");
 	struct Node* child = root->children;
 	Fundef* f = malloc(sizeof(struct Fundef_));
 	f->name = malloc(sizeof(child->value));
@@ -277,10 +285,14 @@ Fundef* FunDec(struct Node* root,Type* type){
 }
 
 FieldList* VarList(struct Node* root){
-	// printf("Enter VarList\n");
+	if(debug == 1)
+		printf("Enter VarList\n");
+	// printf("Varlist : root->name:%s\n",root->name);
 	struct Node* child = root->children;
+	// printf("Varlist : child->name:%s\n",child->name);
 	FieldList* f;
 	f = ParamDec(child);
+	// printf("ensure varlist\n");
 	child = child->next;
 	if(child != NULL){
 		FieldList* p = f;
@@ -293,11 +305,13 @@ FieldList* VarList(struct Node* root){
 			p->next = VarList(child);
 		}
 	}
+	// printf("Varlist :mean to return\n");
 	return f;
 }
 
 FieldList* ParamDec(struct Node* root){
-	// printf("Enter ParamDec\n");
+	if(debug == 1)
+		printf("Enter ParamDec\n");
 	struct Node *child = root->children;
 	FieldList* f;
 	Type* type;
@@ -307,7 +321,8 @@ FieldList* ParamDec(struct Node* root){
 }
 
 void CompSt(struct Node* root,Type* retype){
-	// printf("Enter CompSt\n");
+	if(debug == 1)
+		printf("Enter CompSt\n");
 	struct Node *child = root->children;
 	child=child->next;
 	DefList(child,1);
@@ -316,7 +331,8 @@ void CompSt(struct Node* root,Type* retype){
 }
 
 void StmtList(struct Node* root,Type* retype){
-	// printf("Enter StmtList\n");
+	if(debug == 1)
+		printf("Enter StmtList\n");
 	struct Node *child = root->children;
 	if(child == NULL)
 		return;
@@ -326,7 +342,8 @@ void StmtList(struct Node* root,Type* retype){
 }
 
 void Stmt(struct Node* n,Type* retype){
-	// printf("enter stmt\n");
+	if(debug == 1)
+		printf("enter stmt\n");
 	struct Node*child=n->children;
 	if(child == NULL)
 		return;
@@ -464,7 +481,8 @@ void Stmt(struct Node* n,Type* retype){
 }
 
 FieldList* DefList(struct Node* root,int from){
-	// printf("Enter DefList\n");
+	if(debug == 1)
+		printf("Enter DefList\n");
 	if(root->children == NULL){
 		return NULL;
 	}
@@ -485,7 +503,8 @@ FieldList* DefList(struct Node* root,int from){
 }
 
 FieldList* Def(struct Node* root,int from){
-	// printf("Enter Def\n");
+	if(debug == 1)
+		printf("Enter Def\n");
 	struct Node* child = root->children;
 	FieldList* f;
 	Type* type = Specifier(child);
@@ -495,7 +514,8 @@ FieldList* Def(struct Node* root,int from){
 }
 
 FieldList* DecList(struct Node* root,Type* type,int from){
-	// printf("Enter DecList\n");
+	if(debug == 1)
+		printf("Enter DecList\n");
 	struct Node *child = root->children;
 	FieldList* f;
 	f = Dec(child,type,from);
@@ -515,7 +535,8 @@ FieldList* DecList(struct Node* root,Type* type,int from){
 }
 
 FieldList* Dec(struct Node* root,Type* type,int from){
-	// printf("Enter Dec\n");
+	if(debug == 1)
+		printf("Enter Dec\n");
 	struct Node *child = root->children;
 	FieldList* f;
 	f = VarDec(child,type,from);
@@ -582,7 +603,8 @@ FieldList* Dec(struct Node* root,Type* type,int from){
 }
 
 Type* Exp(struct Node *n,Operand* place){
-	// printf("enter exp\n");
+	if(debug == 1)
+		printf("enter exp\n");
 	struct Node *child = n->children;
 	if(strcmp(child->name,"Exp")==0){
 		struct Node *child2 = child->next;
@@ -1098,7 +1120,8 @@ Type* Exp(struct Node *n,Operand* place){
 }
 
 bool Args(struct Node* n,FieldList* f,Operand* arg_list){
-	// printf("enter args\n");
+	if(debug == 1)
+		printf("enter args\n");
 	if(n==NULL&&f==NULL)
 		return true;
 	else if(n==NULL||f==NULL)

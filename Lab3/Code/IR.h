@@ -90,11 +90,4 @@ void deleteCode(InterCodes* code);
 void printCode(char* filename);
 void printOp(Operand* op,FILE* fp);
 
-void optIF();
-void rmLabel();
-int opEqual(Operand* op1,Operand* op2);
-void rddCode();
-void lookCon();
-void sameRight();
-
 #endif
