@@ -34,8 +34,5 @@ Type* Exp(struct Node *n,Operand* place);
 bool Args(struct Node* n,FieldList* f,Operand* arg_list);
 
 Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false);
-void printparam(FieldList* f);
-void printargs(struct Node *n);
-void printtype(Type* t);
 
 #endif

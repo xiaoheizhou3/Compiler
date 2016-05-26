@@ -33,6 +33,7 @@ typedef struct Operand_ Operand;
 typedef struct InterCode_ InterCode;
 typedef struct Label_No_ Label_No;
 typedef struct InterCodes_ InterCodes;
+
 struct Operand_ {
     enum {tempvar,variable,cons,vaddress,label,function,taddress} kind;
     union {
@@ -44,26 +45,23 @@ struct Operand_ {
 };
 
 struct InterCode_ {
-    enum {assign_k,add_k,sub_k,mul_k,div_k,return_k,label_k,goto_k,ifgoto_k,read_k,write_k,call_k,arg_k,function_k,param_k,dec_k,rightat_k} kind;
+    enum {assign_k,add_k,sub_k,mul_k,div_k,return_k,label_k,goto_k,ifgoto_k,\
+    read_k,write_k,call_k,arg_k,function_k,param_k,dec_k,rightat_k} kind;
     union {
         struct{			//return ,label,goto,read,write,arg, function
 			Operand* op;		//param
 		} one;
-
 		struct{
 			Operand *left,*right;	//call
 		} assign;	//assign	rightat
-
 		struct{
 			Operand *result,*op1,*op2;
 		} binop;			//add sub mul div
-
 		struct{
 			Operand *t1;
 			char *op;
 			Operand *t2,*label;
 		} triop;			//if_goto
-
 		struct{
 			Operand *op;
 			int size;
@@ -85,4 +83,5 @@ void deleteCode(InterCodes* code);
 void printCode(char* filename);
 void printOp(Operand* op,FILE* fp);
 
+void insertCodeIntoIR(InterCode* code);
 #endif

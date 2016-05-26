@@ -19,7 +19,6 @@ void Program(struct Node* root){
 	if(debug == 1)
 		printf("enter program\n");
 	initTables();
-	// printf("init succeed\n");
 	ExtDefList(root->children);
 	checkFunc();
 }
@@ -75,24 +74,22 @@ void ExtDef(struct Node* root){
 					printf("Error type 19 at line %d: Inconsistent declaration of function '%s'\n",temp->row,temp->name);
 				}
 				else{
-					InterCodes* tempNodeOfFunction = malloc(sizeof(struct InterCodes_));
-					tempNodeOfFunction->code = malloc(sizeof(struct InterCode_));
-					tempNodeOfFunction->code->kind = FUNCTION_K;
-					tempNodeOfFunction->code->u.one.op = malloc(sizeof(struct Operand_));
-					tempNodeOfFunction->code->u.one.op->kind = FUNCTION;
-					tempNodeOfFunction->code->u.one.op->u.value = temp->name;
-					insertCode(tempNodeOfFunction);
-					// FieldList* args_list = malloc(sizeof(struct FieldList_));
+					InterCode* code = malloc(sizeof(struct InterCode_));
+					code->kind = FUNCTION_K;
+					code->u.one.op = malloc(sizeof(struct Operand_));
+					code->u.one.op->kind = FUNCTION;
+					code->u.one.op->u.value = temp->name;
+					insertCodeIntoIR(code);
 					FieldList* args_list = temp->args_list;
 
 					while(args_list != NULL){
-						InterCodes* tempNodeOfArgs = malloc(sizeof(struct InterCodes_));
-						tempNodeOfArgs->code = malloc(sizeof(struct InterCode_));
-						tempNodeOfArgs->code->kind = PARAM_K;
-						tempNodeOfArgs->code->u.one.op = malloc(sizeof(struct Operand_));
-						tempNodeOfArgs->code->u.one.op->kind = VARIABLE;
-						tempNodeOfArgs->code->u.one.op->u.value = args_list->name;
-						insertCode(tempNodeOfArgs);
+
+						InterCode* argcode = malloc(sizeof(struct InterCode_));
+						argcode->kind = PARAM_K;
+						argcode->u.one.op = malloc(sizeof(struct Operand_));
+						argcode->u.one.op->kind = VARIABLE;
+						argcode->u.one.op->u.value = args_list->name;
+						insertCodeIntoIR(argcode);
 						args_list = args_list->next;
 					}
 				}
@@ -190,20 +187,17 @@ void ExtDecList(struct Node* root,Type* type){
 			deccode->kind = DEC_K;
 			deccode->u.dec.op = op;
 			deccode->u.dec.size = typeSize(f->type);
-			InterCodes* tempNodeOfdeccode = malloc(sizeof(struct InterCodes_));
-			tempNodeOfdeccode->code = deccode;
-			insertCode(tempNodeOfdeccode);
+			insertCodeIntoIR(deccode);
 
 			Operand* v = malloc(sizeof(struct Operand_));
 			v->kind = VARIABLE;
 			v->u.value = f->name;
+
 			InterCode* addrcode = malloc(sizeof(struct InterCode_));
 			addrcode->kind = RIGHTAT_K;
 			addrcode->u.assign.left = v;
 			addrcode->u.assign.right = op;
-			InterCodes* tempNodeOfAddr = malloc(sizeof(struct InterCodes_));
-			tempNodeOfAddr->code = addrcode;
-			insertCode(tempNodeOfAddr);
+			insertCodeIntoIR(addrcode);
 		}
 	}
 	child = child->next;
@@ -287,12 +281,9 @@ Fundef* FunDec(struct Node* root,Type* type){
 FieldList* VarList(struct Node* root){
 	if(debug == 1)
 		printf("Enter VarList\n");
-	// printf("Varlist : root->name:%s\n",root->name);
 	struct Node* child = root->children;
-	// printf("Varlist : child->name:%s\n",child->name);
 	FieldList* f;
 	f = ParamDec(child);
-	// printf("ensure varlist\n");
 	child = child->next;
 	if(child != NULL){
 		FieldList* p = f;
@@ -305,7 +296,6 @@ FieldList* VarList(struct Node* root){
 			p->next = VarList(child);
 		}
 	}
-	// printf("Varlist :mean to return\n");
 	return f;
 }
 
@@ -371,14 +361,11 @@ void Stmt(struct Node* n,Type* retype){
 		InterCode* code = malloc(sizeof(struct InterCode_));
 		code->kind=RETURN_K;
 		code->u.one.op=op;
-		InterCodes* tempNodeOfcode = malloc(sizeof(struct InterCodes_));
-		tempNodeOfcode->code = code;
-		insertCode(tempNodeOfcode);
+		insertCodeIntoIR(code);
 		return;
 	}
 	else if(strcmp(child->name,"IF")==0){
 		child = child->next->next;
-		//new temp
 		Operand* lb1=malloc(sizeof(struct Operand_));
 		lb1->kind=LABEL;
 		lb1->u.var_no=labCount++;
@@ -393,9 +380,7 @@ void Stmt(struct Node* n,Type* retype){
 		InterCode* code1=malloc(sizeof(struct InterCode_));
 		code1->kind=LABEL_K;
 		code1->u.one.op=lb1;
-		InterCodes* tempNodeOfcode1 = malloc(sizeof(struct InterCodes_));
-		tempNodeOfcode1->code = code1;
-		insertCode(tempNodeOfcode1);
+		insertCodeIntoIR(code1);
 		child=child->next->next;
 		Stmt(child,retype);//code2
 
@@ -406,31 +391,22 @@ void Stmt(struct Node* n,Type* retype){
 			Operand* lb3=malloc(sizeof(struct Operand_));
 			lb3->kind=LABEL;
 			lb3->u.var_no=labCount++;
+
 			InterCode* code2=malloc(sizeof(struct InterCode_));
 			code2->kind=GOTO_K;
 			code2->u.one.op=lb3;
-
-			InterCodes* tempNodeOfcode2 = malloc(sizeof(struct InterCodes_));
-			tempNodeOfcode2->code = code2;
-			insertCode(tempNodeOfcode2);			//goto label3
-
-			InterCodes* tempNodeOflb2code = malloc(sizeof(struct InterCodes_));
-			tempNodeOflb2code->code = lb2code;
-			insertCode(tempNodeOflb2code);		//label2
+			insertCodeIntoIR(code2);
+			insertCodeIntoIR(lb2code);
 
 			child=child->next->next;
 			Stmt(child,retype);			//code3
 			InterCode* lb3code=malloc(sizeof(struct InterCode_));
 			lb3code->kind=LABEL_K;
 			lb3code->u.one.op=lb3;
-			InterCodes* tempNodeOflb3code = malloc(sizeof(struct InterCodes_));
-			tempNodeOflb3code->code = lb3code;
-			insertCode(tempNodeOflb3code);		//label3
+			insertCodeIntoIR(lb3code);
 		}
 		else{
-			InterCodes* tempNodeOflb2code = malloc(sizeof(struct InterCodes_));
-			tempNodeOflb2code->code = lb2code;
-			insertCode(tempNodeOflb2code);
+			insertCodeIntoIR(lb2code);
 		}
 	}
 	else if(strcmp(child->name,"WHILE")==0){
@@ -448,9 +424,8 @@ void Stmt(struct Node* n,Type* retype){
 		InterCode* lb1code=malloc(sizeof(struct InterCode_));
 		lb1code->kind=LABEL_K;
 		lb1code->u.one.op=lb1;
-		InterCodes* tempNodeOflb1code = malloc(sizeof(struct InterCodes_));
-		tempNodeOflb1code->code = lb1code;
-		insertCode(tempNodeOflb1code);		//label 1
+		insertCodeIntoIR(lb1code);
+
 		Type* t=Exp_Cond(child,lb2,lb3);	//code1
 
 		if(t!=NULL&&!((t->kind==0||t->kind==3)&&t->u.basic==int_type)){
@@ -460,23 +435,20 @@ void Stmt(struct Node* n,Type* retype){
 		InterCode* lb2code=malloc(sizeof(struct InterCode_));
 		lb2code->kind=LABEL_K;
 		lb2code->u.one.op=lb2;
-		InterCodes* tempNodeOflb2code = malloc(sizeof(struct InterCodes_));
-		tempNodeOflb2code->code = lb2code;
-		insertCode(tempNodeOflb2code);
+		insertCodeIntoIR(lb2code);
+
 		child=child->next->next;
 		Stmt(child,retype);			//code2
+
 		InterCode* gotolb1=malloc(sizeof(struct InterCode_));
 		gotolb1->kind=GOTO_K;
 		gotolb1->u.one.op=lb1;
-		InterCodes* tempNodeOfgotolb1 = malloc(sizeof(struct InterCodes_));
-		tempNodeOfgotolb1->code = gotolb1;
-		insertCode(tempNodeOfgotolb1);
+		insertCodeIntoIR(gotolb1);
+
 		InterCode* lb3code=malloc(sizeof(struct InterCode_));
 		lb3code->kind=LABEL_K;
 		lb3code->u.one.op=lb3;
-		InterCodes* tempNodeOflb3code = malloc(sizeof(struct InterCodes_));
-		tempNodeOflb3code->code = lb3code;
-		insertCode(tempNodeOflb3code);
+		insertCodeIntoIR(lb3code);
 	}
 }
 
@@ -551,9 +523,7 @@ FieldList* Dec(struct Node* root,Type* type,int from){
 		deccode->kind=DEC_K;
 		deccode->u.dec.op=op;
 		deccode->u.dec.size=typeSize(f->type);
-		InterCodes* tempNodeOfdeccode = malloc(sizeof(struct InterCodes_));
-		tempNodeOfdeccode->code = deccode;
-		insertCode(tempNodeOfdeccode);
+		insertCodeIntoIR(deccode);
 
 		Operand* v = malloc(sizeof(struct Operand_));
 		v->kind=VARIABLE;
@@ -563,9 +533,7 @@ FieldList* Dec(struct Node* root,Type* type,int from){
 		addrcode->kind=RIGHTAT_K;
 		addrcode->u.assign.left=v;
 		addrcode->u.assign.right=op;
-		InterCodes* tempNodeOfaddrcode = malloc(sizeof(struct InterCodes_));
-		tempNodeOfaddrcode->code = deccode;
-		insertCode(tempNodeOfaddrcode);
+		insertCodeIntoIR(addrcode);
 	}
 	if(f==NULL)
 		return NULL;
@@ -593,9 +561,7 @@ FieldList* Dec(struct Node* root,Type* type,int from){
 			asscode->kind=ASSIGN_K;
 			asscode->u.assign.left=left;
 			asscode->u.assign.right=place;
-			InterCodes* tempNodeOfasscode = malloc(sizeof(struct InterCodes_));
-			tempNodeOfasscode->code = asscode;
-			insertCode(tempNodeOfasscode);
+			insertCodeIntoIR(asscode);
 		}
 	}
 	return f;
@@ -646,18 +612,14 @@ Type* Exp(struct Node *n,Operand* place){
 					code1->kind = ASSIGN_K;
 					code1->u.assign.left = leftOp;
 					code1->u.assign.right = rightOp;
-					InterCodes* tempNodeOfAssign = malloc(sizeof(struct InterCodes_));
-					tempNodeOfAssign->code = code1;
-					insertCode(tempNodeOfAssign);
+					insertCodeIntoIR(code1);
 				}
 				InterCode* code2 = malloc(sizeof(struct InterCode_));
 				code2->kind = ASSIGN_K;
 				code2->u.assign.left = place;
 				code2->u.assign.right = rightOp;
 				if(place != NULL){
-					InterCodes* tempNodeOfcode2 = malloc(sizeof(struct InterCodes_));
-					tempNodeOfcode2->code = code2;
-					insertCode(tempNodeOfcode2);
+					insertCodeIntoIR(code2);
 				}
 				return leftType;
 			}
@@ -697,9 +659,7 @@ Type* Exp(struct Node *n,Operand* place){
 				else if(strcmp(child3->name,"DIV")==0)
 					code->kind=DIV_K;
 				if(place!=NULL){
-					InterCodes* tempNodeOfcode = malloc(sizeof(struct InterCodes_));
-					tempNodeOfcode->code = code;
-					insertCode(tempNodeOfcode);
+					insertCodeIntoIR(code);
 				}
 				return t;
 			}
@@ -726,18 +686,14 @@ Type* Exp(struct Node *n,Operand* place){
 				c0->u.value=malloc(32);
 				strcpy(c0->u.value,"0");
 				code0->u.assign.right=c0;
-				InterCodes* tempNodeOfAnd = malloc(sizeof(struct InterCodes_));
-				tempNodeOfAnd->code = code0;
-				insertCode(tempNodeOfAnd);	//code0
+				insertCodeIntoIR(code0);
 			}
 			Type* t=Exp_Cond(n,lb1,lb2);	//code1
 
 			InterCode* lb1code=malloc(sizeof(struct InterCode_));
 			lb1code->kind=LABEL_K;
 			lb1code->u.one.op=lb1;
-			InterCodes* tempNodeOflb1code = malloc(sizeof(struct InterCodes_));
-			tempNodeOflb1code->code = lb1code;
-			insertCode(tempNodeOflb1code);	//label 1
+			insertCodeIntoIR(lb1code);
 
 			Operand* c1 = malloc(sizeof(struct Operand_));
 			c1->kind = CONSTANT;
@@ -748,16 +704,12 @@ Type* Exp(struct Node *n,Operand* place){
 			code2->u.assign.left = place;
 			code2->u.assign.right = c1;
 			if(place!=NULL){
-				InterCodes* tempNodeOfcode2 = malloc(sizeof(struct InterCodes_));
-				tempNodeOfcode2->code = code2;
-				insertCode(tempNodeOfcode2);		//code2
+				insertCodeIntoIR(code2);
 			}
 			InterCode* lb2code=malloc(sizeof(struct InterCode_));
 			lb2code->kind=LABEL_K;
 			lb2code->u.one.op=lb2;
-			InterCodes* tempNodeOflb2code = malloc(sizeof(struct InterCodes_));
-			tempNodeOflb2code->code = lb2code;
-			insertCode(tempNodeOflb2code);
+			insertCodeIntoIR(lb2code);
 			return t;
 		}
 		else if(strcmp(child2->name,"LB")==0){
@@ -780,7 +732,6 @@ Type* Exp(struct Node *n,Operand* place){
 
 			child2=child2->next;
 			Type* t2=Exp(child2,subs);
-			//printf("array back\n");
 			if(t2==NULL)
 				return NULL;
 			if(!((t2->kind==0||t2->kind==3)&&t2->u.basic==int_type)){
@@ -804,9 +755,7 @@ Type* Exp(struct Node *n,Operand* place){
 			addrcode->u.binop.result=offset;
 			addrcode->u.binop.op1=subs;
 			addrcode->u.binop.op2=intsize;
-			InterCodes* tempNodeOfaddrcode = malloc(sizeof(struct InterCodes_));
-			tempNodeOfaddrcode->code = addrcode;
-			insertCode(tempNodeOfaddrcode);
+			insertCodeIntoIR(addrcode);
 
 			Operand* temp=malloc(sizeof(struct Operand_));
 			temp->kind=TEMPVAR;
@@ -825,9 +774,7 @@ Type* Exp(struct Node *n,Operand* place){
 
 			code1->u.binop.op1=aop;
 			code1->u.binop.op2=offset;
-			InterCodes* tempNodeOfCode1 = malloc(sizeof(struct InterCodes_));
-			tempNodeOfCode1->code = code1;
-			insertCode(tempNodeOfCode1);
+			insertCodeIntoIR(code1);
 
 			return t1->u.array.elem;
 		}
@@ -936,9 +883,7 @@ Type* Exp(struct Node *n,Operand* place){
 		code->u.binop.op1=op2;
 		code->u.binop.op2=op;
 		if(place!=NULL){
-			InterCodes* tempNodeOfcode = malloc(sizeof(struct InterCodes_));
-			tempNodeOfcode->code = code;
-			insertCode(tempNodeOfcode);
+			insertCodeIntoIR(code);
 		}
 
 		return t;
@@ -960,18 +905,14 @@ Type* Exp(struct Node *n,Operand* place){
 		strcpy(c0->u.value,"0");
 		code0->u.assign.right=c0;
 		if(place!=NULL){
-			InterCodes* tempNodeOfcode0 = malloc(sizeof(struct InterCodes_));
-			tempNodeOfcode0->code = code0;
-			insertCode(tempNodeOfcode0);	//code0
+			insertCodeIntoIR(code0);
 		}
 		Type* t=Exp_Cond(n,lb1,lb2);	//code1
 
 		InterCode* lb1code=malloc(sizeof(struct InterCode_));
 		lb1code->kind=LABEL_K;
 		lb1code->u.one.op=lb1;
-		InterCodes* tempNodeOflb1code = malloc(sizeof(struct InterCodes_));
-		tempNodeOflb1code->code = lb1code;
-		insertCode(tempNodeOflb1code);	//label 1
+		insertCodeIntoIR(lb1code);
 
 		Operand* c1 = malloc(sizeof(struct Operand_));
 		c1->kind=CONSTANT;
@@ -982,16 +923,12 @@ Type* Exp(struct Node *n,Operand* place){
 		code2->u.assign.left=place;
 		code2->u.assign.right=c1;
 		if(place!=NULL){
-			InterCodes* tempNodeOfcode2 = malloc(sizeof(struct InterCodes_));
-			tempNodeOfcode2->code = code2;
-			insertCode(tempNodeOfcode2);		//code2
+			insertCodeIntoIR(code2);
 		}
 		InterCode* lb2code=malloc(sizeof(struct InterCode_));
 		lb2code->kind=LABEL_K;
 		lb2code->u.one.op=lb2;
-		InterCodes* tempNodeOflb2code = malloc(sizeof(struct InterCodes_));
-		tempNodeOflb2code->code = lb2code;
-		insertCode(tempNodeOflb2code);
+		insertCodeIntoIR(lb2code);
 		return t;
 	}
 	else if(strcmp(child->name,"ID")==0&&child->next!=NULL){
@@ -1012,18 +949,14 @@ Type* Exp(struct Node *n,Operand* place){
 		// printf("child->name:%s\n",child->name);
 		if(strcmp(child->name,"RP")==0){
 			if(param!=NULL){
-				printf("Error type 9 at line%d : The method '%s(",child->lineno,f->name);
-				printparam(param);
-				printf(")'is not applicable for the arguments '()'\n");
+				printf("Error type 9 at line %d : The method %s is not applicable for the arguments.\n",child->lineno,f->name);
 			}
 			if(strcmp(f->name,"read")==0){
 				InterCode* rpcode=malloc(sizeof(struct InterCode_));
 				rpcode->kind=READ_K;
 				rpcode->u.one.op=place;
 				if(place!=NULL){
-					InterCodes* tempNodeOfrpCode = malloc(sizeof(struct InterCodes_));
-					tempNodeOfrpCode->code = rpcode;
-					insertCode(tempNodeOfrpCode);		//read place
+					insertCodeIntoIR(rpcode);
 				}
 			}
 			else{
@@ -1034,9 +967,7 @@ Type* Exp(struct Node *n,Operand* place){
 				cfcode->kind=CALL_K;
 				cfcode->u.assign.left=place;//TODO:NULL?
 				cfcode->u.assign.right=fop;
-				InterCodes* tempNodeOfcfcode = malloc(sizeof(struct InterCodes_));
-				tempNodeOfcfcode->code = cfcode;
-				insertCode(tempNodeOfcfcode);			//call func
+				insertCodeIntoIR(cfcode);
 			}
 		}
 		else{
@@ -1044,19 +975,14 @@ Type* Exp(struct Node *n,Operand* place){
 			arg_list_head->next=NULL;
 			if(!Args(child,param,arg_list_head)){
 				// printf("error type 9\n");
-				printf("Error type 9 at line %d : The method '%s(",child->lineno,f->name);
-				printparam(param);
-				printf(")'is not applicable for the arguments '(");
-				printf(")'\n");
+					printf("Error type 9 at line %d : The method %s is not applicable for the arguments.\n",child->lineno,f->name);
 			}
 			else{
 				if(strcmp(f->name,"write")==0){
 					InterCode* wacode=malloc(sizeof(struct InterCode_));
 					wacode->kind=WRITE_K;
 					wacode->u.one.op=arg_list_head->next;
-					InterCodes* tempNodeOfwacode = malloc(sizeof(struct InterCodes_));
-					tempNodeOfwacode->code = wacode;
-					insertCode(tempNodeOfwacode);			//write arg
+					insertCodeIntoIR(wacode);
 				}
 				else{
 					arg_list_head = arg_list_head->next;
@@ -1064,9 +990,7 @@ Type* Exp(struct Node *n,Operand* place){
 						InterCode* argcode=malloc(sizeof(struct InterCode_));
 						argcode->kind=ARG_K;
 						argcode->u.one.op=arg_list_head;
-						InterCodes* tempNodeOfargcode = malloc(sizeof(struct InterCodes_));
-						tempNodeOfargcode->code = argcode;
-						insertCode(tempNodeOfargcode);		//Arg arg
+						insertCodeIntoIR(argcode);
 						arg_list_head=arg_list_head->next;
 					}
 					Operand* fop = malloc(sizeof(struct Operand_));
@@ -1076,9 +1000,7 @@ Type* Exp(struct Node *n,Operand* place){
 					cfcode->kind=CALL_K;
 					cfcode->u.assign.left=place;
 					cfcode->u.assign.right=fop;
-					InterCodes* tempNodeOfcfcode = malloc(sizeof(struct InterCodes_));
-					tempNodeOfcfcode->code = cfcode;
-					insertCode(tempNodeOfcfcode);		//call func
+					insertCodeIntoIR(cfcode);
 				}
 			}
 		}
@@ -1146,13 +1068,11 @@ bool Args(struct Node* n,FieldList* f,Operand* arg_list){
 }
 
 Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false){
-	// printf("enter exp_cond\n");
 	struct Node *child = n->children;
 	Type* type;
 	if(strcmp(child->name,"Exp")==0){
 		struct Node *child2 = child->next;
 		if(strcmp(child2->name,"RELOP")==0){
-			//new temp
 			Operand* t1=malloc(sizeof(struct Operand_));
 			t1->kind=TEMPVAR;
 			t1->u.var_no=varCount++;
@@ -1173,16 +1093,12 @@ Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false){
 				code3->u.triop.op=child3->value;
 				code3->u.triop.t2=t2;
 				code3->u.triop.label=label_true;
-				InterCodes* tempNodeOfcode3 = malloc(sizeof(struct InterCodes_));
-				tempNodeOfcode3->code = code3;
-				insertCode(tempNodeOfcode3);		//code3
+				insertCodeIntoIR(code3);
 
 				InterCode* gotolbf=malloc(sizeof(struct InterCode_));
 				gotolbf->kind=GOTO_K;
 				gotolbf->u.one.op=label_false;
-				InterCodes* tempNodeOfgotolbf = malloc(sizeof(struct InterCodes_));
-				tempNodeOfgotolbf->code = gotolbf;
-				insertCode(tempNodeOfgotolbf);
+				insertCodeIntoIR(gotolbf);
 				return tp;
 			}
 			else{
@@ -1202,9 +1118,7 @@ Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false){
 			InterCode* lb1code=malloc(sizeof(struct InterCode_));
 			lb1code->kind=LABEL_K;
 			lb1code->u.one.op=lb1;
-			InterCodes* tempNodeOflb1code = malloc(sizeof(struct InterCodes_));
-			tempNodeOflb1code->code = lb1code;
-			insertCode(tempNodeOflb1code);		//label 1
+			insertCodeIntoIR(lb1code);
 
 			child2=child2->next;
 			Type* t2=Exp_Cond(child2,label_true,label_false);	//code2
@@ -1230,9 +1144,7 @@ Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false){
 			InterCode* lb1code=malloc(sizeof(struct InterCode_));
 			lb1code->kind=LABEL_K;
 			lb1code->u.one.op=lb1;
-			InterCodes* tempNodeOflb1code = malloc(sizeof(struct InterCodes_));
-			tempNodeOflb1code->code = lb1code;
-			insertCode(tempNodeOflb1code);		//label 1
+			insertCodeIntoIR(lb1code);
 
 			Type* t2=Exp_Cond(child2,label_true,label_false);	//code2
 			if(t==NULL||t2==NULL)
@@ -1270,48 +1182,11 @@ Type* Exp_Cond(struct Node *n,Operand* label_true,Operand* label_false){
 	strcpy(t2->u.value,"0");
 	code2->u.triop.t2=t2;
 	code2->u.triop.label=label_true;
-	InterCodes* tempNodeOfcode2 = malloc(sizeof(struct InterCodes_));
-	tempNodeOfcode2->code = code2;
-	insertCode(tempNodeOfcode2);		//code2
+	insertCodeIntoIR(code2);
 
 	InterCode* gotolbf=malloc(sizeof(struct InterCode_));
 	gotolbf->kind=GOTO_K;
 	gotolbf->u.one.op=label_false;
-	InterCodes* tempNodeOfgotolbf = malloc(sizeof(struct InterCodes_));
-	tempNodeOfgotolbf->code = code2;
-	insertCode(tempNodeOfgotolbf);
+	insertCodeIntoIR(code2);
 	return type;
-}
-
-void printparam(FieldList* f){
-	while(f!=NULL){
-		printtype(f->type);
-		f=f->next;
-	}
-}
-
-void printargs(struct Node *n){
-	struct Node *child=n->children;
-	Type* t=Exp(child,NULL);
-	if(t==NULL)
-		return;
-	printtype(t);
-	child=child->next;
-	if(child==NULL)
-		return;
-	child=child->next;
-	printargs(child);
-}
-
-void printtype(Type* t){
-	if((t->kind==0||t->kind==3)&&t->u.basic==int_type)
-		printf(" int ");
-	else if((t->kind==0||t->kind==3)&&t->u.basic==float_type)
-		printf(" float ");
-	else if(t->kind==2)
-		printf("struct %s ",t->u.structure->name);
-	else if(t->kind==1){
-		printtype(t->u.array.elem);
-		printf("[]");
-	}
 }

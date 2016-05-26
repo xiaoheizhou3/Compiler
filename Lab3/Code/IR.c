@@ -188,3 +188,9 @@ void printOp(Operand* op,FILE* fp){
 	}
 	fputs("	",fp);
 }
+
+void insertCodeIntoIR(InterCode* code){
+    InterCodes* tempNodeOfIRList = malloc(sizeof(struct InterCodes_));
+    tempNodeOfIRList->code = code;
+    insertCode(tempNodeOfIRList);
+}
