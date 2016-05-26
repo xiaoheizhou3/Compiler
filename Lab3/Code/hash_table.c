@@ -11,7 +11,6 @@ unsigned int hash(char* name){
 }
 
 void initTables(){
-	// printf("enter initTables\n");
 	int i = 0;
 	for(;i < SYMBOL_TABLE_SIZE;i++){
 		VarTable[i] = NULL;
@@ -187,25 +186,20 @@ int typeSize(Type* type){
 			return 4;
 		else return 8;
 	}
-	else if(type->kind==STRUCTURE)	//struct
-	{
+	else if(type->kind==STRUCTURE){
 		int size=0;
-		FieldList* f=type->u.structure->next;
-		while(f!=NULL)
-		{
-			size+=typeSize(f->type);
-			f=f->next;
-		}
+		// FieldList* f=type->u.structure->next;
+		// while(f!=NULL)
+		// {
+		// 	size+=typeSize(f->type);
+		// 	f=f->next;
+		// }
+		printf("Can not translate the code: Contain multidimensional array and function parameters of array type!\n");
+		exit(-1);
 		return size;
 	}
-	else if(type->kind==ARRAY)		//array
-	{
+	else if(type->kind==ARRAY){
 		//高维数组
-		if(type->u.array.elem->kind==ARRAY)
-		{
-			printf("Can not translate the code: Contain multidimensional array and function parameters of array type!\n");
-			exit(-1);
-		}
 		return	type->u.array.size*typeSize(type->u.array.elem);
 	}
 	printf("type size error!\n");

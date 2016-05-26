@@ -541,7 +541,7 @@ FieldList* Dec(struct Node* root,Type* type,int from){
 	FieldList* f;
 	f = VarDec(child,type,from);
 
-	if(f->type->kind==1&&from==1){
+	if(f->type->kind ==1 &&from == 1){
 		//array space
 		Operand* op=malloc(sizeof(struct Operand_));
 		op->kind=TEMPVAR;
@@ -555,7 +555,7 @@ FieldList* Dec(struct Node* root,Type* type,int from){
 		tempNodeOfdeccode->code = deccode;
 		insertCode(tempNodeOfdeccode);
 
-		Operand* v=malloc(sizeof(struct Operand_));
+		Operand* v = malloc(sizeof(struct Operand_));
 		v->kind=VARIABLE;
 		v->u.value=f->name;
 
@@ -566,20 +566,19 @@ FieldList* Dec(struct Node* root,Type* type,int from){
 		InterCodes* tempNodeOfaddrcode = malloc(sizeof(struct InterCodes_));
 		tempNodeOfaddrcode->code = deccode;
 		insertCode(tempNodeOfaddrcode);
-		// insertCode(addrcode);
 	}
 	if(f==NULL)
 		return NULL;
 
 	child = child->next;
 	if(child != NULL){		//assignop =
-		if(from == 2){	//struct cannot be initialized
+		if(from == 2){
 			printf("Error type 15 at line %d: be initialized field ‘%s’\n",child->lineno,f->name);
 			return f;
 		}
-		Operand* place=malloc(sizeof(struct Operand_));
-		place->kind=VARIABLE;
-		place->u.value=f->name;
+		Operand* place = malloc(sizeof(struct Operand_));
+		place->kind = VARIABLE;
+		place->u.value = f->name;
 		child = child->next;
 		Type* t = Exp(child,place);
 		if(t != NULL && type != NULL && !typeEqual(type,t)){
@@ -766,7 +765,7 @@ Type* Exp(struct Node *n,Operand* place){
 			aop->kind=TEMPVAR;
 			aop->u.var_no=varCount++;
 			Type* t1=Exp(child,aop);	//array
-			//child's children must be a ID,
+
 			if(t1==NULL)return NULL;
 			if(t1->kind!=1){
 				printf("Error type 10 at line %d: '",child->lineno);
@@ -833,76 +832,78 @@ Type* Exp(struct Node *n,Operand* place){
 			return t1->u.array.elem;
 		}
 		else if(strcmp(child2->name,"DOT")==0){
-			Operand* op1 = malloc(sizeof(struct Operand_));
-			op1->kind = TEMPVAR;
-			op1->u.var_no = varCount++;
-			Type* t1 = Exp(child,op1);
-			if(t1 == NULL)return NULL;
-			if(t1->kind!=2){
-				printf("Error type 13 at line %d: Illegal use of '.'\n",child->lineno);
-				return NULL;
-			}
-			FieldList* fl=t1->u.structure->next;
-			child2=child2->next;
-			int size=0;
-			while(fl!=NULL){
-				if(strcmp(fl->name,child2->value)==0){
-					if(size==0){
-						if(op1->kind==VARIABLE||op1->kind==VADDRESS){
-							if(fl->type->kind==0){
-								place->kind=VADDRESS;
-								place->u.name=op1;
-							}
-							else{
-								place->kind=VARIABLE;
-								place->u.value=op1->u.value;
-							}
-						}
-						else if(op1->kind==TEMPVAR||op1->kind==TADDRESS){
-							if(fl->type->kind==0){
-								place->kind=TADDRESS;
-								place->u.name=op1;
-							}
-							else{
-								place->kind=TEMPVAR;
-								place->u.var_no=op1->u.var_no;
-							}
-						}
-					}
-					else{
-						Operand* temp = malloc(sizeof(struct Operand_));
-						temp->kind=TEMPVAR;
-						temp->u.var_no = varCount++;
-
-						Operand* conOp = malloc(sizeof(struct Operand_));
-						conOp->kind=CONSTANT;
-						conOp->u.value=malloc(32);
-						memset(conOp->u.value,0,32);
-						sprintf(conOp->u.value,"%d",size);
-
-						InterCode* code1=malloc(sizeof(struct InterCode_));
-						code1->kind=ADD_K;
-
-						if(fl->type->kind==0){
-							place->kind=TADDRESS;
-							place->u.name=temp;
-							code1->u.binop.result=temp;
-						}
-						else
-							code1->u.binop.result=place;
-						code1->u.binop.op1=op1;
-						code1->u.binop.op2=conOp;
-						InterCodes* tempNodeOfCode1 = malloc(sizeof(struct InterCodes_));
-						tempNodeOfCode1->code = code1;
-						insertCode(tempNodeOfCode1);
-					}
-					return fl->type;
-				}
-				size += typeSize(fl->type);
-				fl=fl->next;
-			}
-			printf("Error type 14 at line %d: Un-existed field '%s‘\n",child2->lineno,child2->value);
-			return NULL;
+			printf("Cannot translate: Code contains variables or parameters of structure type.\n");
+			exit(-1);
+			// Operand* op1 = malloc(sizeof(struct Operand_));
+			// op1->kind = TEMPVAR;
+			// op1->u.var_no = varCount++;
+			// Type* t1 = Exp(child,op1);
+			// if(t1 == NULL)return NULL;
+			// if(t1->kind!=2){
+			// 	printf("Error type 13 at line %d: Illegal use of '.'\n",child->lineno);
+			// 	return NULL;
+			// }
+			// FieldList* fl=t1->u.structure->next;
+			// child2=child2->next;
+			// int size=0;
+			// while(fl!=NULL){
+			// 	if(strcmp(fl->name,child2->value)==0){
+			// 		if(size==0){
+			// 			if(op1->kind==VARIABLE||op1->kind==VADDRESS){
+			// 				if(fl->type->kind==0){
+			// 					place->kind=VADDRESS;
+			// 					place->u.name=op1;
+			// 				}
+			// 				else{
+			// 					place->kind=VARIABLE;
+			// 					place->u.value=op1->u.value;
+			// 				}
+			// 			}
+			// 			else if(op1->kind==TEMPVAR||op1->kind==TADDRESS){
+			// 				if(fl->type->kind==0){
+			// 					place->kind=TADDRESS;
+			// 					place->u.name=op1;
+			// 				}
+			// 				else{
+			// 					place->kind=TEMPVAR;
+			// 					place->u.var_no=op1->u.var_no;
+			// 				}
+			// 			}
+			// 		}
+			// 		else{
+			// 			Operand* temp = malloc(sizeof(struct Operand_));
+			// 			temp->kind=TEMPVAR;
+			// 			temp->u.var_no = varCount++;
+			//
+			// 			Operand* conOp = malloc(sizeof(struct Operand_));
+			// 			conOp->kind=CONSTANT;
+			// 			conOp->u.value=malloc(32);
+			// 			memset(conOp->u.value,0,32);
+			// 			sprintf(conOp->u.value,"%d",size);
+			//
+			// 			InterCode* code1=malloc(sizeof(struct InterCode_));
+			// 			code1->kind=ADD_K;
+			//
+			// 			if(fl->type->kind==0){
+			// 				place->kind=TADDRESS;
+			// 				place->u.name=temp;
+			// 				code1->u.binop.result=temp;
+			// 			}
+			// 			else
+			// 				code1->u.binop.result=place;
+			// 			code1->u.binop.op1=op1;
+			// 			code1->u.binop.op2=conOp;
+			// 			InterCodes* tempNodeOfCode1 = malloc(sizeof(struct InterCodes_));
+			// 			tempNodeOfCode1->code = code1;
+			// 			insertCode(tempNodeOfCode1);
+			// 		}
+			// 		return fl->type;
+			// 	}
+			// 	size += typeSize(fl->type);
+			// 	fl=fl->next;
+			// }
+			// printf("Error type 14 at line %d: Un-existed field '%s‘\n",child2->lineno,child2->value);
+			// return NULL;
 		}
 
 	}
@@ -925,7 +926,7 @@ Type* Exp(struct Node *n,Operand* place){
 		}
 
 		//print code here
-		Operand* op2=malloc(sizeof(struct Operand_));
+		Operand* op2 = malloc(sizeof(struct Operand_));
 		op2->kind=CONSTANT;
 		op2->u.value=malloc(4);
 		strcpy(op2->u.value,"0");

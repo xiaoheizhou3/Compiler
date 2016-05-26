@@ -71,11 +71,6 @@ struct InterCode_ {
     }u;
 };
 
-struct Label_No_{
-	int no;
-	Label_No* next;
-};
-
 struct InterCodes_ {
     InterCode* code;
     InterCodes* prev;
